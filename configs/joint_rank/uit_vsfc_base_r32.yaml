@@ -1,0 +1,18 @@
+experiment:
+  model_id: "Viet-Mistral/Vistral-7B-Chat"
+  output_root: "outputs"
+  lora_alpha: null
+  lora_dropout: 0.05
+  learning_rate: 0.0001
+  epochs: 3
+  max_steps: -1
+  batch_size: 6
+  gradient_accumulation: 4
+  max_length: 1024
+  focal_gamma: 2.0
+  seed: 42
+  dataset: "uit_vsfc"
+  architecture: "joint"
+  lora_rank: 32
+  use_masking: false
+  use_focal_loss: false

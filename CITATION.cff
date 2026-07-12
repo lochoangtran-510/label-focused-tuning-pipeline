@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the associated article."
+title: "Label-Focused Tuning Pipeline"
+type: software
+authors:
+  - family-names: Tran
+    given-names: Hoang Xuan Loc
+  - family-names: Bui
+    given-names: Thanh Hung
+version: 1.0.0
+date-released: 2026-07-12
+license: MIT
+repository-code: "https://github.com/lochoangtran-510/label-focused-tuning-pipeline"

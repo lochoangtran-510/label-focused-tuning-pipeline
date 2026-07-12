@@ -1,0 +1,9 @@
+# Separate vLLM environment. Do not install this on top of the training environment.
+numpy>=1.26
+pandas>=2.2
+scikit-learn>=1.4
+huggingface-hub>=0.26
+nvidia-ml-py>=12.560
+torch>=2.4
+transformers==4.46.3
+vllm==0.6.6

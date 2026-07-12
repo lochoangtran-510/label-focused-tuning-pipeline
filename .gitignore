@@ -1,0 +1,23 @@
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+venv/
+data/*
+!data/README.md
+outputs/
+runs/
+checkpoints/
+*.safetensors
+*.bin
+*.pt
+*.pth
+.env
+
+# Private/exploratory artifacts; do not publish in the reproducibility release.
+NEU_2_focal.ipynb
+Neu_joint_ssr.ipynb
+neu2adapter.ipynb
+neu_joint_focal.ipynb
+baseline+collator(2).ipynb
+sn-article-3.pdf
