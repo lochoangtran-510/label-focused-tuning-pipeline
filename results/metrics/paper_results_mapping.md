@@ -2,7 +2,7 @@
 
 | Paper item | Artifact or generation source |
 |---|---|
-| Tables 3–5, main results | `results/predictions/<dataset>/*.csv` → `scripts/evaluate.py` |
+| Tables 3–5, main results | `results/predictions/<dataset>/*.csv` → `scripts/evaluate.py`; NEU Dual + Pipeline uses r=16/64 |
 | Table 6 / Figure 4, ablation | Base, Masking, and Full prediction/metric files for the three reported ranks |
 | Table 7, minority recall | Classification reports generated from the same ablation predictions |
 | Table 8 / Figure 5, Joint ranks | `configs/rank_sweeps/joint_rank_sweep.yaml` and audited rank metrics |

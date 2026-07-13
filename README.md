@@ -235,6 +235,7 @@ when reproducing reported results.
 
 The Dual Adapter rank analysis on NEU-ESC used these Sentiment/Topic pairs:
 `8/8`, `16/16`, `32/32`, `64/64`, `16/64`, `64/16`, and `32/8`.
+The NEU-ESC Dual + Pipeline row in the main comparison uses `r=16/64`.
 The ablation reported only Base, Masking, and Full Pipeline; a standalone
 Focal-only configuration was not reported as a separate row. Outputs are written
 under `outputs/<dataset>/<architecture>/<configuration>/` and excluded from Git.

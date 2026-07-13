@@ -5,7 +5,7 @@ the six principal LoRA releases used in the main comparison:
 
 ```text
 checkpoints/
-├── neu_esc/{joint_pipeline_r32,dual_pipeline}/
+├── neu_esc/{joint_pipeline_r32,dual_pipeline_r16_r64}/
 ├── uit_vsfc/{joint_pipeline_r8,dual_pipeline}/
 └── victsd/{joint_pipeline_r8,dual_pipeline}/
 ```
