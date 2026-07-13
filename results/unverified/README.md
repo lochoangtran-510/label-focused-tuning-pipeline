@@ -19,9 +19,11 @@ The NEU-ESC r=64/16 source artifacts are retained here for provenance:
   report under `results/metrics/` reconciles these sources and evaluates all
   6,613 rows after majority fallback.
 
-Two UIT-VSFC metric reports remain quarantined:
+One UIT-VSFC metric report remains unresolved:
 - `uit_vsfc/dual_base_r8_r16/report_mismatch.txt` reports Topic Accuracy/mF1
   89.64/81.72 rather than the final paper values 89.70/81.76.
-- `uit_vsfc/dual_pipeline_r8_r16/duplicate_of_dual_base.txt` is byte-identical
-  to that mismatching Dual Base report, so it cannot substantiate Dual +
-  Pipeline.
+
+The earlier
+`uit_vsfc/dual_pipeline_r8_r16/duplicate_of_dual_base.txt` remains here only as
+an audit trail: it was an accidental duplicate. The corrected Dual + Pipeline
+report is now stored under `results/metrics/`.
