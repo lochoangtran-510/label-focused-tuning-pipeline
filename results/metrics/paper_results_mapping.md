@@ -8,7 +8,7 @@
 | Table 6 / Figure 4, ablation | `joint_base`, `joint_masking`, and `joint_pipeline` at NEU r=32, UIT r=8, and ViCTSD r=8 |
 | Table 7, minority recall | Classification reports in the same ablation files |
 | Table 8 / Figure 5, Joint ranks | NEU-ESC and UIT-VSFC `joint_base` and `joint_pipeline`, r=8/16/32/64 |
-| Table 9, Dual ranks | NEU-ESC `dual_pipeline`; r=64/16 is quarantined because its report is truncated |
+| Table 9, Dual ranks | NEU-ESC `dual_pipeline`, including the reconciled full-test r=64/16 report |
 | Table 10, efficiency | Timing fields in UIT-VSFC reports; both Dual reports require recovery from the final runs |
 | Figure 6, confusion matrices | Requires row-level NEU-ESC r=32 predictions and `scripts/generate_figures.py` |
 | Figure 7, error analysis | Requires row-level NEU-ESC r=32 predictions and `scripts/generate_figures.py` |

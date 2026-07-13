@@ -16,11 +16,9 @@ metrics/<dataset>/
 ```
 
 The uploaded reports were checked against the headline values in Tables 3–9 of
-the final manuscript. Three source files were quarantined under
+the final manuscript. Two source files were quarantined under
 `results/unverified/` and are intentionally absent here:
 
-- NEU-ESC Dual + Pipeline `r=64/16`: the report is truncated before the
-  Sentiment summary and contains no fallback summary.
 - UIT-VSFC Dual Base `r=8/16`: the uploaded report gives Topic Accuracy/mF1 of
   89.64/81.72, whereas Table 5 reports 89.70/81.76.
 - UIT-VSFC Dual + Pipeline `r=8/16`: the uploaded file is byte-for-byte
@@ -29,6 +27,12 @@ the final manuscript. Three source files were quarantined under
 
 Do not reconstruct missing values by editing these reports. Recover the original
 outputs or rerun inference from the corresponding adapters.
+
+The NEU-ESC Dual + Pipeline r=64/16 report was supplied in two parts: a raw
+valid-only runtime report covering 6,610 rows and a truncated full-test
+reevaluation covering all 6,613 rows after fallback. Its canonical report
+combines the runtime fields from the former with the corrected classification
+metrics from the latter and clearly records this reconciliation.
 
 Row-level Joint + Pipeline r=8 predictions were also supplied for UIT-VSFC and
 ViCTSD. Their row counts, label sets, Accuracy, Macro F1, and Weighted F1 were
