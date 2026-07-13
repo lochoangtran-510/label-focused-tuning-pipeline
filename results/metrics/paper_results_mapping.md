@@ -2,14 +2,20 @@
 
 | Paper item | Artifact or generation source |
 |---|---|
-| Tables 3–5, main results | `results/predictions/<dataset>/*.csv` → `scripts/evaluate.py`; NEU Dual + Pipeline uses r=16/64 |
-| Table 6 / Figure 4, ablation | Base, Masking, and Full prediction/metric files for the three reported ranks |
-| Table 7, minority recall | Classification reports generated from the same ablation predictions |
-| Table 8 / Figure 5, Joint ranks | `configs/rank_sweeps/joint_rank_sweep.yaml` and audited rank metrics |
-| Table 9, Dual ranks | `configs/rank_sweeps/dual_rank_sweep_neu.yaml` and audited rank metrics |
-| Table 10, efficiency | `performance.json` from `scripts/predict.py` on UIT-VSFC/A100 40 GB |
-| Figure 6, confusion matrices | NEU-ESC r=32 predictions → `scripts/generate_figures.py` |
-| Figure 7, error analysis | NEU-ESC r=32 predictions → `scripts/generate_figures.py` |
+| Table 3, NEU-ESC | `neu_esc/{zero_shot,joint_base/r32,joint_pipeline/r32,dual_base/r16_r64,dual_pipeline/r16_r64}` |
+| Table 4, ViCTSD | `victsd/{zero_shot,joint_base/r8,joint_pipeline/r8,dual_base/r8_r32,dual_pipeline/r8_r32}` |
+| Table 5, UIT-VSFC | `uit_vsfc/{zero_shot,joint_base/r16,joint_pipeline/r16}`; both Dual reports are quarantined because they do not match the final table |
+| Table 6 / Figure 4, ablation | `joint_base`, `joint_masking`, and `joint_pipeline` at NEU r=32, UIT r=8, and ViCTSD r=8 |
+| Table 7, minority recall | Classification reports in the same ablation files |
+| Table 8 / Figure 5, Joint ranks | NEU-ESC and UIT-VSFC `joint_base` and `joint_pipeline`, r=8/16/32/64 |
+| Table 9, Dual ranks | NEU-ESC `dual_pipeline`; r=64/16 is quarantined because its report is truncated |
+| Table 10, efficiency | Timing fields in UIT-VSFC reports; both Dual reports require recovery from the final runs |
+| Figure 6, confusion matrices | Requires row-level NEU-ESC r=32 predictions and `scripts/generate_figures.py` |
+| Figure 7, error analysis | Requires row-level NEU-ESC r=32 predictions and `scripts/generate_figures.py` |
 
-Files containing published numerical values should be added only after verifying
-them against the final manuscript tables.
+Paths above are relative to `results/metrics/` and omit the `.txt` suffix. Text
+reports support aggregate tables, but do not replace `predictions.csv` for
+regenerating confusion matrices or sample-level error analysis.
+
+Verified row-level predictions currently exist only for UIT-VSFC and ViCTSD
+Joint + Pipeline r=8 under `results/predictions/`.

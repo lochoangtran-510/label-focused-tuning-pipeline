@@ -1,0 +1,19 @@
+{
+    "hardware": {
+        "gpu_name": "NVIDIA A100-SXM4-40GB",
+        "peak_vram_gb": 36.01,
+        "reserved_vram_gb": 35.49
+    },
+    "speed": {
+        "total_inference_time_sec": 35.47,
+        "avg_latency_per_sample_sec": 0.0355,
+        "samples_per_second": 28.2
+    },
+    "token_throughput": {
+        "total_input_tokens": 223026,
+        "total_output_tokens": 21477,
+        "input_tokens_per_sec": 6288.43,
+        "output_tokens_per_sec": 605.56,
+        "overall_tokens_per_sec": 6893.99
+    }
+}

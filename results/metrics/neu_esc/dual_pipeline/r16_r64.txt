@@ -1,0 +1,63 @@
+Fallback configuration
+----------------------
+Majority sentiment : Neutral
+Majority topic     : Other
+Total predictions  : 6613
+Invalid sentiment  : 3
+Invalid topic      : 3
+Rows with any invalid prediction: 3
+
+========================================================================
+FULL TEST — DUAL ADAPTER SENTIMENT
+========================================================================
+Samples     : 6613
+Accuracy    : 0.8217
+Macro F1    : 0.7733
+Weighted F1 : 0.8209
+
+Classification Report:
+              precision    recall  f1-score   support
+
+     Neutral     0.8745    0.8870    0.8807      4558
+    Positive     0.6965    0.6355    0.6646       834
+    Negative     0.6688    0.6836    0.6761      1046
+       Toxic     0.9125    0.8343    0.8716       175
+
+    accuracy                         0.8217      6613
+   macro avg     0.7881    0.7601    0.7733      6613
+weighted avg     0.8206    0.8217    0.8209      6613
+
+
+========================================================================
+FULL TEST — DUAL ADAPTER TOPIC
+========================================================================
+Samples     : 6613
+Accuracy    : 0.7901
+Macro F1    : 0.6314
+Weighted F1 : 0.7861
+
+Classification Report:
+                    precision    recall  f1-score   support
+
+              Spam     0.6462    0.5000    0.5638        84
+              News     0.5857    0.4481    0.5077       183
+          Academic     0.8189    0.8769    0.8469      2104
+             Other     0.8540    0.8584    0.8562      2882
+           Service     0.6294    0.6414    0.6353       474
+Jobs & Recruitment     0.6993    0.6564    0.6772       163
+  Personal Affairs     0.5804    0.4966    0.5353       298
+    Social Affairs     0.5752    0.4194    0.4851       155
+      Help & Share     0.5200    0.4745    0.4962       137
+     Club & Events     0.7209    0.6992    0.7099       133
+
+          accuracy                         0.7901      6613
+         macro avg     0.6630    0.6071    0.6314      6613
+      weighted avg     0.7844    0.7901    0.7861      6613
+
+
+========================================================================
+DUAL-ADAPTER JOINT SUMMARY
+========================================================================
+Joint Accuracy (both tasks correct): 0.6557
+Sentiment accuracy                 : 0.8217
+Topic accuracy                     : 0.7901

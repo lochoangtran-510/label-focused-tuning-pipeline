@@ -1,0 +1,50 @@
+✅ Inference xong! Tổng thời gian: 36.4s
+Parse errors: 0/1000
+
+=======================================================
+         BÁO CÁO KẾT QUẢ ĐÁNH GIÁ MÔ HÌNH (ViCTSD)
+=======================================================
+Tổng mẫu test  : 1000
+Mẫu hợp lệ    : 1000  |  Parse error: 0
+Thời gian      : 36.4s (0.6 phút)
+Throughput     : 591 tokens/sec
+Tốc độ         : 27.5 samples/sec
+
+── Phân loại Cảm xúc (Sentiment) ──
+   Accuracy   : 0.9160
+   Macro F1   : 0.7707
+   Weighted F1: 0.9131
+
+   Classification Report:
+              precision    recall  f1-score   support
+
+   Non-toxic       0.94      0.96      0.95       890
+       Toxic       0.64      0.55      0.59       110
+
+    accuracy                           0.92      1000
+   macro avg       0.79      0.75      0.77      1000
+weighted avg       0.91      0.92      0.91      1000
+
+
+── Phân loại Chủ đề (Topic) ──
+   Accuracy   : 0.9960
+   Macro F1   : 0.9957
+   Weighted F1: 0.9960
+
+   Classification Report:
+              precision    recall  f1-score   support
+
+     GiaiTri       1.00      1.00      1.00       112
+     GiaoDuc       0.98      1.00      0.99        99
+     KhoaHoc       1.00      1.00      1.00        86
+   KinhDoanh       0.98      1.00      0.99        91
+    OtoXemay       1.00      0.99      1.00       104
+    PhapLuat       1.00      1.00      1.00        98
+     SucKhoe       1.00      0.99      0.99        95
+     TheGioi       1.00      1.00      1.00       110
+     TheThao       1.00      1.00      1.00       120
+      ThoiSu       1.00      0.98      0.99        85
+
+    accuracy                           1.00      1000
+   macro avg       1.00      1.00      1.00      1000
+weighted avg       1.00      1.00      1.00      1000

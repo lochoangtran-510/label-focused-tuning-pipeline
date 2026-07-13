@@ -1,0 +1,50 @@
+⏱️  Tổng thời gian inference: 58.7s (1.0 phút)
+
+Parse errors — Toxicity: 0/1000 | Topic: 0/1000
+
+============================================================
+      BÁO CÁO KẾT QUẢ — DUAL ADAPTER (ViCTSD)
+============================================================
+Tổng mẫu test      : 1000
+Thời gian tổng     : 58.7s (1.0 phút)
+  └─ Toxicity       : 27.1s
+  └─ Topic          : 31.6s
+Throughput         : 433 tokens/sec
+Tốc độ             : 17.0 samples/sec
+
+── Adapter Toxicity ───────────────────────────────────
+   Mẫu hợp lệ  : 1000/1000  (parse error: 0)
+   Accuracy    : 0.8950
+   Macro F1    : 0.7745
+   Weighted F1 : 0.9031
+              precision    recall  f1-score   support
+
+   Non-toxic       0.97      0.91      0.94       890
+       Toxic       0.52      0.75      0.61       110
+
+    accuracy                           0.90      1000
+   macro avg       0.74      0.83      0.77      1000
+weighted avg       0.92      0.90      0.90      1000
+
+
+── Adapter Topic ──────────────────────────────────────
+   Mẫu hợp lệ  : 1000/1000  (parse error: 0)
+   Accuracy    : 0.9940
+   Macro F1    : 0.9938
+   Weighted F1 : 0.9940
+              precision    recall  f1-score   support
+
+     GiaiTri       0.98      1.00      0.99       112
+     GiaoDuc       0.99      0.98      0.98        99
+     KhoaHoc       0.99      1.00      0.99        86
+   KinhDoanh       1.00      0.99      0.99        91
+    OtoXemay       0.99      1.00      1.00       104
+    PhapLuat       1.00      0.99      0.99        98
+     SucKhoe       1.00      0.99      0.99        95
+     TheGioi       1.00      1.00      1.00       110
+     TheThao       1.00      1.00      1.00       120
+      ThoiSu       0.99      0.99      0.99        85
+
+    accuracy                           0.99      1000
+   macro avg       0.99      0.99      0.99      1000
+weighted avg       0.99      0.99      0.99      1000

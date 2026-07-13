@@ -1,0 +1,75 @@
+Inference completed.
+Total inference time   : 206.35 seconds (3.44 minutes)
+Peak VRAM usage        : 35.28 GB
+
+======================================================================
+OUTPUT PARSING AND FALLBACK SUMMARY
+======================================================================
+Total test samples      : 6613
+Fallback samples        : 3/6613
+Sentiment fallbacks     : 3/6613
+Topic fallbacks         : 3/6613
+
+Parse status distribution:
+VALID           6610
+BOTH_INVALID       3
+
+========================================================================
+NEU-ESC JOINT LORA — FULL-TEST EVALUATION
+========================================================================
+Base model              : Viet-Mistral/Vistral-7B-Chat
+Adapter                 : Vistral-7B Joint LoRA (r=64)
+Total test samples      : 6613
+Evaluated samples       : 6613
+Fallback samples        : 3
+Inference time          : 206.35 seconds (3.44 minutes)
+Average inference time  : 31.20 ms/sample
+Peak VRAM usage         : 35.28 GB
+Throughput              : 598.83 tokens/second
+Inference speed         : 32.05 samples/second
+Generated tokens        : 123569
+
+------------------------------------------------------------------------
+SENTIMENT CLASSIFICATION
+------------------------------------------------------------------------
+Accuracy                : 0.8340
+Macro F1                : 0.7718
+Weighted F1             : 0.8286
+
+Sentiment classification report:
+              precision    recall  f1-score   support
+
+     Neutral     0.8631    0.9250    0.8929      4558
+    Positive     0.7559    0.5791    0.6558       834
+    Negative     0.7219    0.6453    0.6815      1046
+       Toxic     0.9156    0.8057    0.8571       175
+
+    accuracy                         0.8340      6613
+   macro avg     0.8141    0.7388    0.7718      6613
+weighted avg     0.8286    0.8340    0.8286      6613
+
+
+------------------------------------------------------------------------
+TOPIC CLASSIFICATION
+------------------------------------------------------------------------
+Accuracy                : 0.7942
+Macro F1                : 0.6069
+Weighted F1             : 0.7849
+
+Topic classification report:
+                    precision    recall  f1-score   support
+
+              Spam     0.5735    0.4643    0.5132        84
+              News     0.5714    0.3934    0.4660       183
+          Academic     0.8403    0.8579    0.8490      2104
+             Other     0.8301    0.9084    0.8675      2882
+           Service     0.6366    0.6540    0.6452       474
+Jobs & Recruitment     0.6667    0.5644    0.6113       163
+  Personal Affairs     0.6524    0.3591    0.4632       298
+    Social Affairs     0.5833    0.4065    0.4791       155
+      Help & Share     0.6067    0.3942    0.4779       137
+     Club & Events     0.7023    0.6917    0.6970       133
+
+          accuracy                         0.7942      6613
+         macro avg     0.6663    0.5694    0.6069      6613
+      weighted avg     0.7840    0.7942    0.7849      6613

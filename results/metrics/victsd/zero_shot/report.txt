@@ -1,0 +1,76 @@
+Bắt đầu zero-shot inference trên 1000 mẫu...
+
+Processed prompts: 100%|██████████| 1000/1000 [00:18<00:00, 54.58it/s, est. speed input: 11026.93 toks/s, output: 1233.71 toks/s]
+
+
+Inference hoàn tất.
+Tổng thời gian: 18.8 giây (0.3 phút)
+
+============================================================
+KẾT QUẢ PARSE VÀ FALLBACK
+============================================================
+Tổng mẫu test          : 1000
+Mẫu dùng fallback      : 15/1000
+Toxicity fallback      : 13/1000
+Topic fallback         : 9/1000
+
+Phân bố trạng thái parse:
+VALID               985
+BOTH_INVALID          7
+TOXICITY_INVALID      6
+TOPIC_INVALID         2
+
+=================================================================
+ZERO-SHOT BASELINE — ViCTSD — FULL TEST EVALUATION
+=================================================================
+Tổng mẫu test          : 1000
+Mẫu được đánh giá      : 1000
+Mẫu dùng fallback      : 15
+Thời gian inference    : 18.8 giây (0.3 phút)
+Thời gian trung bình   : 18.84 ms/mẫu
+Samples/second         : 53.07
+Throughput             : 1199.65 tokens/giây
+Tổng generated tokens  : 22603
+
+-----------------------------------------------------------------
+TOXICITY CLASSIFICATION
+-----------------------------------------------------------------
+Accuracy    : 0.8770
+Macro F1    : 0.5484
+Weighted F1 : 0.8489
+
+Classification Report — Toxicity:
+              precision    recall  f1-score   support
+
+   Non-toxic     0.8982    0.9719    0.9336       890
+       Toxic     0.3243    0.1091    0.1633       110
+
+    accuracy                         0.8770      1000
+   macro avg     0.6113    0.5405    0.5484      1000
+weighted avg     0.8351    0.8770    0.8489      1000
+
+
+-----------------------------------------------------------------
+TOPIC CLASSIFICATION
+-----------------------------------------------------------------
+Accuracy    : 0.5030
+Macro F1    : 0.4759
+Weighted F1 : 0.4934
+
+Classification Report — Topic:
+              precision    recall  f1-score   support
+
+     GiaiTri     0.6494    0.4464    0.5291       112
+     GiaoDuc     0.2305    0.7172    0.3489        99
+     KhoaHoc     0.8333    0.0581    0.1087        86
+   KinhDoanh     0.9231    0.1319    0.2308        91
+    OtoXemay     0.9710    0.6442    0.7746       104
+    PhapLuat     0.4138    0.8571    0.5581        98
+     SucKhoe     0.5556    0.4211    0.4790        95
+     TheGioi     0.4430    0.3182    0.3704       110
+     TheThao     0.9469    0.8917    0.9185       120
+      ThoiSu     0.5333    0.3765    0.4414        85
+
+    accuracy                         0.5030      1000
+   macro avg     0.6500    0.4862    0.4759      1000
+weighted avg     0.6532    0.5030    0.4934      1000

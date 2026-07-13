@@ -1,0 +1,69 @@
+Inference completed.
+Total inference time    : 40.71 seconds (0.68 minutes)
+Peak VRAM usage         : 35.31 GB
+
+=================================================================
+OUTPUT PARSING AND FALLBACK SUMMARY
+=================================================================
+Total test samples      : 3166
+Fallback samples        : 18/3166
+Sentiment fallbacks     : 10/3166
+Topic fallbacks         : 16/3166
+
+Parse status distribution:
+VALID                3148
+BOTH_INVALID            8
+TOPIC_INVALID           8
+SENTIMENT_INVALID       2
+
+======================================================================
+UIT-VSFC ZERO-SHOT BASELINE — FULL-TEST EVALUATION
+======================================================================
+Model                   : Viet-Mistral/Vistral-7B-Chat
+Total test samples      : 3166
+Evaluated samples       : 3166
+Fallback samples        : 18
+Inference time          : 40.71 seconds (0.68 minutes)
+Average GPU time        : 12.86 ms/sample
+Peak VRAM usage         : 35.31 GB
+Throughput              : 1467.26 tokens/second
+Inference speed         : 77.77 samples/second
+Generated tokens        : 59733
+
+----------------------------------------------------------------------
+SENTIMENT CLASSIFICATION
+----------------------------------------------------------------------
+Accuracy                : 0.8007
+Macro F1                : 0.5827
+Weighted F1             : 0.7808
+
+Sentiment classification report:
+              precision    recall  f1-score   support
+
+    Negative     0.9410    0.6792    0.7890      1409
+     Neutral     0.4783    0.0659    0.1158       167
+    Positive     0.7371    0.9855    0.8434      1590
+
+    accuracy                         0.8007      3166
+   macro avg     0.7188    0.5769    0.5827      3166
+weighted avg     0.8142    0.8007    0.7808      3166
+
+
+----------------------------------------------------------------------
+TOPIC CLASSIFICATION
+----------------------------------------------------------------------
+Accuracy                : 0.8111
+Macro F1                : 0.5457
+Weighted F1             : 0.7795
+
+Topic classification report:
+              precision    recall  f1-score   support
+
+    Lecturer     0.8399    0.9533    0.8930      2290
+  Curriculum     0.7623    0.4318    0.5513       572
+    Facility     0.5625    0.9310    0.7013       145
+      Others     1.0000    0.0189    0.0370       159
+
+    accuracy                         0.8111      3166
+   macro avg     0.7912    0.5837    0.5457      3166
+weighted avg     0.8213    0.8111    0.7795      3166

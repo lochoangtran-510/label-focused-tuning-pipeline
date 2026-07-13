@@ -1,0 +1,55 @@
+Fallback configuration
+----------------------
+Majority sentiment : Neutral
+Majority topic     : Other
+Total predictions  : 6613
+Invalid sentiment : 3
+Invalid topic     : 3
+Rows with any invalid prediction: 3
+
+========================================================================
+FULL TEST — SENTIMENT
+========================================================================
+Samples     : 6613
+Accuracy    : 0.8344
+Macro F1    : 0.7857
+Weighted F1 : 0.8317
+
+Classification Report:
+              precision    recall  f1-score   support
+
+     Neutral     0.8720    0.9087    0.8900      4558
+    Positive     0.7203    0.6391    0.6773       834
+    Negative     0.7217    0.6644    0.6919      1046
+       Toxic     0.9250    0.8457    0.8836       175
+
+    accuracy                         0.8344      6613
+   macro avg     0.8097    0.7645    0.7857      6613
+weighted avg     0.8305    0.8344    0.8317      6613
+
+
+========================================================================
+FULL TEST — TOPIC
+========================================================================
+Samples     : 6613
+Accuracy    : 0.7940
+Macro F1    : 0.6434
+Weighted F1 : 0.7906
+
+Classification Report:
+                    precision    recall  f1-score   support
+
+              Spam     0.5909    0.6190    0.6047        84
+              News     0.5878    0.4754    0.5257       183
+          Academic     0.8291    0.8645    0.8464      2104
+             Other     0.8516    0.8702    0.8608      2882
+           Service     0.6601    0.6350    0.6473       474
+Jobs & Recruitment     0.6959    0.6319    0.6624       163
+  Personal Affairs     0.5654    0.4933    0.5269       298
+    Social Affairs     0.6071    0.4387    0.5094       155
+      Help & Share     0.5489    0.5328    0.5407       137
+     Club & Events     0.7209    0.6992    0.7099       133
+
+          accuracy                         0.7940      6613
+         macro avg     0.6658    0.6260    0.6434      6613
+      weighted avg     0.7887    0.7940    0.7906      6613

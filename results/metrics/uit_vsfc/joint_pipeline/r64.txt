@@ -1,0 +1,45 @@
+✅ Inference xong! Tổng thời gian: 95.6s
+Parse errors: 0/3166
+
+=======================================================
+         BÁO CÁO KẾT QUẢ ĐÁNH GIÁ MÔ HÌNH
+=======================================================
+Tổng mẫu test  : 3166
+Mẫu hợp lệ    : 3166  |  Parse error: 0
+Thời gian      : 95.6s (1.6 phút)
+Throughput     : 622 tokens/sec
+Tốc độ         : 33.1 samples/sec
+
+── Phân loại Cảm xúc (Sentiment) ──
+   Accuracy   : 0.9416
+   Macro F1   : 0.8169
+   Weighted F1: 0.9365
+
+   Classification Report:
+              precision    recall  f1-score   support
+
+    Negative       0.94      0.97      0.96      1409
+     Neutral       0.75      0.41      0.53       167
+    Positive       0.95      0.97      0.96      1590
+
+    accuracy                           0.94      3166
+   macro avg       0.88      0.79      0.82      3166
+weighted avg       0.94      0.94      0.94      3166
+
+
+── Phân loại Chủ đề (Topic) ──
+   Accuracy   : 0.8910
+   Macro F1   : 0.7974
+   Weighted F1: 0.8867
+
+   Classification Report:
+              precision    recall  f1-score   support
+
+    Lecturer       0.92      0.95      0.94      2290
+  Curriculum       0.77      0.76      0.76       572
+    Facility       0.94      0.94      0.94       145
+      Others       0.73      0.43      0.55       159
+
+    accuracy                           0.89      3166
+   macro avg       0.84      0.77      0.80      3166
+weighted avg       0.89      0.89      0.89      3166
