@@ -1,0 +1,52 @@
+Inference performance
+---------------------
+Total test samples : 3166
+Total time         : 117.1 seconds (2.0 minutes)
+Sentiment time     : 57.2 seconds
+Topic time         : 59.9 seconds
+Peak GPU VRAM      : 35.28 GB
+Throughput         : 588 tokens/second
+Processing speed   : 27.0 samples/second
+Invalid sentiment  : 0
+Invalid topic      : 0
+Test rows removed  : 0
+
+============================================================
+FULL TEST — DUAL ADAPTER SENTIMENT
+============================================================
+Samples     : 3166
+Accuracy    : 0.9447
+Macro F1    : 0.8401
+Weighted F1 : 0.9415
+
+Classification Report:
+              precision    recall  f1-score   support
+
+    Negative       0.95      0.97      0.96      1409
+     Neutral       0.75      0.50      0.60       167
+    Positive       0.95      0.97      0.96      1590
+
+    accuracy                           0.94      3166
+   macro avg       0.89      0.81      0.84      3166
+weighted avg       0.94      0.94      0.94      3166
+
+
+============================================================
+FULL TEST — DUAL ADAPTER TOPIC
+============================================================
+Samples     : 3166
+Accuracy    : 0.8964
+Macro F1    : 0.8172
+Weighted F1 : 0.8955
+
+Classification Report:
+              precision    recall  f1-score   support
+
+    Lecturer       0.94      0.94      0.94      2290
+  Curriculum       0.76      0.79      0.77       572
+    Facility       0.96      0.93      0.95       145
+      Others       0.67      0.55      0.60       159
+
+    accuracy                           0.90      3166
+   macro avg       0.83      0.80      0.82      3166
+weighted avg       0.90      0.90      0.90      3166

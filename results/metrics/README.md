@@ -16,14 +16,9 @@ metrics/<dataset>/
 ```
 
 The uploaded reports were checked against the headline values in the revised
-manuscript. The only unresolved final result is the UIT-VSFC Dual Base report;
-its supplied source remains under `results/unverified/`:
-
-- UIT-VSFC Dual Base `r=8/16`: the uploaded report gives Topic Accuracy/mF1 of
-  89.64/81.72, whereas Table 5 reports 89.70/81.76.
-
-Do not reconstruct missing values by editing these reports. Recover the original
-outputs or rerun inference from the corresponding adapters.
+manuscript. All 36 aggregate reports are now present. Values are transcribed
+from supplied full-test outputs; missing results must never be reconstructed by
+editing metrics.
 
 The NEU-ESC Dual + Pipeline r=64/16 report was supplied in two parts: a raw
 valid-only runtime report covering 6,610 rows and a truncated full-test
@@ -35,6 +30,10 @@ The corrected UIT-VSFC Dual + Pipeline r=8/16 report has Topic Accuracy 90.27%
 (not 92.70%), Topic Macro F1 81.26%, a runtime of 116.3 seconds, and zero parse
 errors. These are the values from the revised manuscript confirmed by the
 author.
+
+The corrected UIT-VSFC Dual Base r=8/16 report has Topic Accuracy 89.64%,
+Topic Macro F1 81.72%, a runtime of 117.1 seconds, and zero parse errors. These
+are also author-confirmed values from the revised manuscript.
 
 Row-level Joint + Pipeline r=8 predictions were also supplied for UIT-VSFC and
 ViCTSD. Their row counts, label sets, Accuracy, Macro F1, and Weighted F1 were

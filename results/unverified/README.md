@@ -19,9 +19,10 @@ The NEU-ESC r=64/16 source artifacts are retained here for provenance:
   report under `results/metrics/` reconciles these sources and evaluates all
   6,613 rows after majority fallback.
 
-One UIT-VSFC metric report remains unresolved:
-- `uit_vsfc/dual_base_r8_r16/report_mismatch.txt` reports Topic Accuracy/mF1
-  89.64/81.72 rather than the final paper values 89.70/81.76.
+The original `uit_vsfc/dual_base_r8_r16/report_mismatch.txt` was quarantined
+because it differed from an older PDF. The author subsequently confirmed that
+89.64% Topic Accuracy and 81.72% Topic Macro F1 are the corrected manuscript
+values, so a canonical report is now stored under `results/metrics/`.
 
 The earlier
 `uit_vsfc/dual_pipeline_r8_r16/duplicate_of_dual_base.txt` remains here only as
