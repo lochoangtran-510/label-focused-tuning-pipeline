@@ -30,7 +30,9 @@ from label_focused.training import (
 
 def arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--config", required=True, help="Path to an experiment YAML file")
+    parser.add_argument("--config", help="Path to a fully resolved run YAML file")
+    parser.add_argument("--dataset-config", help="Layered dataset YAML")
+    parser.add_argument("--experiment-config", help="Layered experiment YAML")
     parser.add_argument("--data-dir", default="data")
     parser.add_argument("--max-steps", type=int, help="Override for smoke tests, e.g. 2")
     parser.add_argument("--output-root", help="Override output root")
@@ -49,6 +51,34 @@ def read_config(path: Path) -> tuple[ExperimentConfig, dict[str, Any]]:
     config = ExperimentConfig(**experiment)
     validate_config(config)
     return config, raw
+
+
+def read_layered_configs(
+    dataset_path: Path, experiment_path: Path
+) -> tuple[ExperimentConfig, dict[str, Any]]:
+    dataset = yaml.safe_load(dataset_path.read_text(encoding="utf-8"))
+    experiment = yaml.safe_load(experiment_path.read_text(encoding="utf-8"))
+    if experiment.get("training") is False:
+        raise ValueError("zero_shot is an inference configuration and cannot be trained")
+    loss_type = experiment.get("loss_type", "cross_entropy")
+    config = ExperimentConfig(
+        dataset=dataset["dataset"],
+        architecture=experiment["architecture"],
+        lora_rank=int(dataset["default_rank"]),
+        lora_dropout=0.05,
+        learning_rate=1e-4,
+        epochs=int(dataset.get("epochs", 3)),
+        max_steps=-1,
+        batch_size=6,
+        gradient_accumulation=4,
+        max_length=int(dataset.get("max_length", 1024)),
+        use_masking=bool(experiment.get("completion_only_masking", False)),
+        use_focal_loss=loss_type == "focal",
+        focal_gamma=float(experiment.get("focal_gamma", 2.0)),
+        seed=42,
+    )
+    validate_config(config)
+    return config, {"dataset_config": dataset, "experiment_config": experiment}
 
 
 def validate_config(config: ExperimentConfig) -> None:
@@ -103,8 +133,18 @@ def write_json(path: Path, value: Any) -> None:
 
 def main() -> None:
     args = arguments()
-    config_path = Path(args.config)
-    config, source_yaml = read_config(config_path)
+    if args.config:
+        if args.dataset_config or args.experiment_config:
+            raise ValueError("Use either --config or the two layered config arguments")
+        config, source_yaml = read_config(Path(args.config))
+    elif args.dataset_config and args.experiment_config:
+        config, source_yaml = read_layered_configs(
+            Path(args.dataset_config), Path(args.experiment_config)
+        )
+    else:
+        raise ValueError(
+            "Provide --config, or both --dataset-config and --experiment-config"
+        )
     if args.max_steps is not None:
         if args.max_steps <= 0:
             raise ValueError("--max-steps smoke-test override must be positive")

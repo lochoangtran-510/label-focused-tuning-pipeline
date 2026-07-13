@@ -56,6 +56,17 @@ def build_inference_prompt(text: str, spec: DatasetSpec, tokenizer: Any) -> str:
     )
 
 
+def build_zero_shot_prompt(text: str, spec: DatasetSpec, tokenizer: Any) -> str:
+    """Build the Vistral baseline prompt without the one-shot exemplar."""
+    messages = [
+        {"role": "system", "content": spec.system_prompt},
+        {"role": "user", "content": f'{spec.input_label}: "{text}"'},
+    ]
+    return tokenizer.apply_chat_template(
+        messages, tokenize=False, add_generation_prompt=True
+    )
+
+
 def _single_task_metadata(spec: DatasetSpec, task: str) -> tuple[str, str, str]:
     if task == "sentiment":
         labels = ", ".join(spec.sentiment_labels)

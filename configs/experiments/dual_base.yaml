@@ -1,0 +1,4 @@
+architecture: dual_adapter
+completion_only_masking: false
+loss_type: cross_entropy
+use_class_alpha: false

@@ -45,90 +45,36 @@ notebook["cells"] = [
     nbf.v4.new_markdown_cell(
         """# Label-Focused Tuning Pipeline
 
-Reproducible joint multitask fine-tuning for **NEU-ESC**, **UIT-VSFC**, and **ViCTSD**.
-The training pipeline is shared; dataset loading, labels, preprocessing, and prompts are selected through one configuration value."""
+Colab quickstart for **NEU-ESC**, **UIT-VSFC**, and **ViCTSD**. The notebook is
+only a thin interface to the same Python CLI used on Linux."""
     ),
     nbf.v4.new_markdown_cell(
         """## 1. Installation
 
-Run this notebook from the repository root. On Google Colab, clone the repository first. Never paste an access token into a notebook; authenticate with `huggingface-cli login` or a Colab secret only if the selected model requires it."""
+Never paste an access token into a notebook. Authenticate with a Colab secret
+only if the selected model requires it."""
     ),
-    nbf.v4.new_code_cell("%pip install -q -r requirements.txt"),
-    nbf.v4.new_markdown_cell("## 2. Experiment configuration"),
     nbf.v4.new_code_cell(
-        """import sys
-from pathlib import Path
-
-ROOT = Path.cwd()
-sys.path.insert(0, str(ROOT / "src"))
-
-from label_focused.datasets import DATASET_REGISTRY, load_splits
-from label_focused.training import (
-    ExperimentConfig,
-    load_model_and_tokenizer,
-    make_prompt_datasets,
-    make_trainer,
-    train_dual_adapters,
-)
-
-# Change only this value to run another dataset:
-DATASET_NAME = "neu_esc"  # "neu_esc", "uit_vsfc", or "victsd"
-ARCHITECTURE = "joint"    # "joint" or "dual_adapter"
-
-config = ExperimentConfig(
-    dataset=DATASET_NAME,
-    architecture=ARCHITECTURE,
-    lora_rank=32,
-    # For asymmetric Dual Adapter runs, set both fields explicitly, e.g. 32/8:
-    sentiment_lora_rank=None,
-    topic_lora_rank=None,
-    use_masking=True,
-    use_focal_loss=True,
-)
-spec = DATASET_REGISTRY[config.dataset]
-print(config)
-print(spec.system_prompt)
-print("\\n" + spec.one_shot)"""
+        """!git clone https://github.com/lochoangtran-510/label-focused-tuning-pipeline.git
+%cd label-focused-tuning-pipeline
+%pip install -q -r requirements.txt"""
+    ),
+    nbf.v4.new_markdown_cell("## 2. Prepare one dataset"),
+    nbf.v4.new_code_cell(
+        """# UIT-VSFC downloads automatically. For NEU-ESC or ViCTSD, first
+# place the official source CSVs under data/raw/<dataset>/.
+DATASET = "uit_vsfc"  # neu_esc | uit_vsfc | victsd
+!python scripts/prepare_data.py --dataset {DATASET}"""
     ),
     nbf.v4.new_markdown_cell(
-        """## 3. Load data
+        """## 3. Smoke test
 
-- `UIT-VSFC` is downloaded from Hugging Face automatically.
-- Place NEU-ESC files in `data/neu_esc/{train,validation,test}.csv`.
-- Place ViCTSD files in `data/victsd/{train,validation,test}.csv`.
-
-The raw datasets are not redistributed by this repository; obtain them from their original sources."""
+The override checks the pipeline only. Remove `--max-steps 2` for the public
+three-epoch schedule."""
     ),
     nbf.v4.new_code_cell(
-        """splits = load_splits(config.dataset, data_dir=ROOT / "data")
-for split, frame in splits.items():
-    print(f"{split:>10}: {len(frame):,} samples; columns={list(frame.columns)}")"""
-    ),
-    nbf.v4.new_markdown_cell("## 4. Train Joint or Dual Adapter architecture"),
-    nbf.v4.new_code_cell(
-        """if config.architecture == "joint":
-    model, tokenizer = load_model_and_tokenizer(config)
-    train_dataset, validation_dataset = make_prompt_datasets(
-        splits["train"], splits["validation"], spec, tokenizer, config.max_length
-    )
-    trainer = make_trainer(
-        model=model,
-        tokenizer=tokenizer,
-        train_dataset=train_dataset,
-        eval_dataset=validation_dataset,
-        train_frame=splits["train"],
-        config=config,
-    )
-    trainer.train()
-    best_dir = Path(config.output_dir) / "best_model"
-    trainer.model.save_pretrained(best_dir)
-    tokenizer.save_pretrained(best_dir)
-    print(f"Saved Joint adapter to {best_dir}")
-elif config.architecture == "dual_adapter":
-    adapter_paths = train_dual_adapters(splits, config)
-    print(adapter_paths)
-else:
-    raise ValueError(f"Unknown architecture: {config.architecture}")"""
+        """CONFIG = "configs/ablation/uit_vsfc_full_r8.yaml"
+!python scripts/train.py --config {CONFIG} --max-steps 2 --output-root outputs/smoke"""
     ),
     nbf.v4.new_markdown_cell(
         """## 5. Experiments reported in the paper
@@ -152,7 +98,7 @@ Dataset/rank scope:
     ),
 ]
 
-target = Path("notebooks/label_focused_pipeline.ipynb")
+target = Path("notebooks/colab_quickstart.ipynb")
 target.parent.mkdir(parents=True, exist_ok=True)
 nbf.write(notebook, target)
 print(target)

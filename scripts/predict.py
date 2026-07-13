@@ -18,7 +18,10 @@ from label_focused.inference import InferenceConfig, run_inference
 def arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", required=True, choices=["neu_esc", "uit_vsfc", "victsd"])
-    parser.add_argument("--architecture", required=True, choices=["joint", "dual_adapter"])
+    parser.add_argument(
+        "--architecture", required=True,
+        choices=["zero_shot", "joint", "dual_adapter"],
+    )
     parser.add_argument("--model-id", default="Viet-Mistral/Vistral-7B-Chat")
     parser.add_argument("--data-dir", default="data")
     parser.add_argument("--output-dir", required=True)

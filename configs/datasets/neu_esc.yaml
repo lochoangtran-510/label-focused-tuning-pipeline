@@ -1,0 +1,26 @@
+dataset: neu_esc
+train_file: data/processed/neu_esc/train.csv
+validation_file: data/processed/neu_esc/validation.csv
+test_file: data/processed/neu_esc/test.csv
+text_column: text
+sentiment_column: sentiment
+topic_column: classification
+sentiment_labels: [Neutral, Positive, Negative, Toxic]
+topic_labels:
+  - Spam
+  - News
+  - Academic
+  - Other
+  - Service
+  - Jobs & Recruitment
+  - Personal Affairs
+  - Social Affairs
+  - Help & Share
+  - Club & Events
+one_shot_sentiment: Neutral
+one_shot_topic: Academic
+one_shot_text: "bạn ơi ngành này có phù hợp với tuổi trung niên đến già không bạn hay đến độ tuổi đó mức độ đào thải sẽ cao bạn nhỉ ."
+default_rank: 32
+max_length: 1024
+epochs: 3
+majority_policy: calculate_from_training_split

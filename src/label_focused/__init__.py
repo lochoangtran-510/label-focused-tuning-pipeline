@@ -5,6 +5,7 @@ from .prompting import (
     build_inference_prompt,
     build_single_task_prompt,
     build_training_prompt,
+    build_zero_shot_prompt,
 )
 
 __all__ = [
@@ -13,5 +14,6 @@ __all__ = [
     "build_inference_prompt",
     "build_single_task_prompt",
     "build_training_prompt",
+    "build_zero_shot_prompt",
     "load_splits",
 ]

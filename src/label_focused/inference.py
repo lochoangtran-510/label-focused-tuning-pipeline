@@ -15,6 +15,7 @@ from .evaluation import majority_labels, correct_full_test_predictions
 from .prompting import (
     build_inference_prompt,
     build_single_task_prompt,
+    build_zero_shot_prompt,
     labels_from_row,
     parse_prediction,
     parse_single_prediction,
@@ -80,6 +81,8 @@ class VramMonitor:
 
 
 def _validate_config(config: InferenceConfig) -> None:
+    if config.architecture == "zero_shot":
+        return
     if config.architecture == "joint":
         if not config.joint_adapter:
             raise ValueError("Joint inference requires joint_adapter")
@@ -89,7 +92,7 @@ def _validate_config(config: InferenceConfig) -> None:
                 "Dual inference requires sentiment_adapter and topic_adapter"
             )
     else:
-        raise ValueError("architecture must be 'joint' or 'dual_adapter'")
+        raise ValueError("architecture must be 'zero_shot', 'joint', or 'dual_adapter'")
 
 
 def _token_counts(outputs: list[Any]) -> tuple[int, int]:
@@ -113,9 +116,10 @@ def run_inference(
     tokenizer = AutoTokenizer.from_pretrained(
         config.model_id, trust_remote_code=True
     )
+    uses_lora = config.architecture != "zero_shot"
     llm = LLM(
         model=config.model_id,
-        enable_lora=True,
+        enable_lora=uses_lora,
         max_lora_rank=config.max_lora_rank,
         dtype="half",
         gpu_memory_utilization=config.gpu_memory_utilization,
@@ -132,10 +136,13 @@ def run_inference(
 
     true_labels = [labels_from_row(row, spec) for _, row in test_frame.iterrows()]
     texts = test_frame[spec.text_column].astype(str).tolist()
-    if config.architecture == "joint":
-        joint_prompts = [
-            build_inference_prompt(text, spec, tokenizer) for text in texts
-        ]
+    if config.architecture in {"zero_shot", "joint"}:
+        prompt_builder = (
+            build_zero_shot_prompt
+            if config.architecture == "zero_shot"
+            else build_inference_prompt
+        )
+        joint_prompts = [prompt_builder(text, spec, tokenizer) for text in texts]
     else:
         sentiment_prompts = [
             build_single_task_prompt(text, spec, tokenizer, "sentiment", training=False)
@@ -148,11 +155,16 @@ def run_inference(
     all_outputs: list[Any] = []
     started = time.perf_counter()
     with VramMonitor() as monitor:
-        if config.architecture == "joint":
-            request = LoRARequest("joint", 1, str(config.joint_adapter))
-            outputs = llm.generate(
-                joint_prompts, sampling, lora_request=request, use_tqdm=True
+        if config.architecture in {"zero_shot", "joint"}:
+            request = (
+                None
+                if config.architecture == "zero_shot"
+                else LoRARequest("joint", 1, str(config.joint_adapter))
             )
+            generate_kwargs = {"use_tqdm": True}
+            if request is not None:
+                generate_kwargs["lora_request"] = request
+            outputs = llm.generate(joint_prompts, sampling, **generate_kwargs)
             all_outputs.extend(outputs)
             raw_joint = [output.outputs[0].text for output in outputs]
             parsed = [parse_prediction(raw) for raw in raw_joint]

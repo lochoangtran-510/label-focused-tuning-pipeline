@@ -1,0 +1,17 @@
+dataset: uit_vsfc
+source: uitnlp/vietnamese_students_feedback
+train_file: data/processed/uit_vsfc/train.csv
+validation_file: data/processed/uit_vsfc/validation.csv
+test_file: data/processed/uit_vsfc/test.csv
+text_column: sentence
+sentiment_column: sentiment
+topic_column: topic
+sentiment_labels: [Negative, Neutral, Positive]
+topic_labels: [Lecturer, Curriculum, Facility, Others]
+one_shot_sentiment: Positive
+one_shot_topic: Lecturer
+one_shot_text: "giảng viên giảng dạy nhiệt tình , có đầy đủ các hoạt động để sinh viên rèn luyện và học tập ."
+default_rank: 8
+max_length: 1024
+epochs: 3
+majority_policy: calculate_from_training_split

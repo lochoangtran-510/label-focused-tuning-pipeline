@@ -18,24 +18,27 @@ and alpha-balanced focal loss are shared by all experiments.
 
 ```text
 .
-├── notebooks/label_focused_pipeline.ipynb  # recommended entry point
-├── scripts/predict.py                      # Joint/Dual vLLM inference
-├── scripts/evaluate.py                     # full-test majority fallback metrics
-├── scripts/train.py                        # YAML-driven training entry point
-├── configs/                                # reported reproduction presets
+├── configs/{datasets,experiments,rank_sweeps}/
+├── data/{raw,processed}/                   # local only; not redistributed
+├── notebooks/colab_quickstart.ipynb       # Colab quickstart
+├── scripts/{prepare_data,train,predict,evaluate}.py
+├── checkpoints/README.md                   # LoRA release layout
+├── results/                                # predictions, metrics, figures
 ├── src/label_focused/
-│   ├── datasets.py                         # schemas, labels, prompts, loaders
-│   ├── prompting.py                        # unified chat/JSON prompt engine
-│   ├── training.py                         # LoRA, masking, focal loss, trainer
-│   └── evaluation.py                       # classification metrics
-├── data/README.md                          # expected local data layout
-├── EXPERIMENTS.md                          # exact scope of reported experiments
+│   ├── datasets.py                        # schemas, labels, loaders
+│   ├── prompting.py                       # Joint/Dual prompt and JSON parser
+│   ├── completion_collator.py             # response-only masking
+│   ├── losses.py                          # alpha-balanced focal loss
+│   ├── training.py                        # Joint/Dual LoRA training
+│   ├── inference.py                       # zero-shot/Joint/Dual vLLM
+│   └── evaluation.py                      # full-test metrics and fallback
+├── EXPERIMENTS.md                         # exact reported experiment scope
 ├── requirements.txt
 └── CITATION.cff
 ```
 
-The original exploratory notebooks are retained temporarily for result auditing;
-the clean notebook above is the public and reproducible entry point.
+Exploratory Colab notebooks and the manuscript PDF are excluded from the public
+repository. The clean notebook above is the only notebook entry point.
 See [`EXPERIMENTS.md`](EXPERIMENTS.md) before launching a reproduction run.
 
 ## Installation
@@ -57,8 +60,16 @@ source .venv-inference/bin/activate
 pip install -r requirements-inference.txt
 ```
 
-Prepare the datasets as described in [`data/README.md`](data/README.md), then
-open `notebooks/label_focused_pipeline.ipynb`. Select a dataset in the
+Prepare the datasets as described in [`data/README.md`](data/README.md):
+
+```bash
+python scripts/prepare_data.py --dataset neu_esc
+python scripts/prepare_data.py --dataset uit_vsfc
+python scripts/prepare_data.py --dataset victsd
+```
+
+Then
+open `notebooks/colab_quickstart.ipynb`. Select a dataset in the
 configuration cell:
 
 ```python
@@ -79,6 +90,14 @@ Run a reported configuration with:
 ```bash
 python scripts/train.py \
   --config configs/ablation/neu_esc_full_r32.yaml
+```
+
+The same run can be composed from readable dataset and method configs:
+
+```bash
+python scripts/train.py \
+  --dataset-config configs/datasets/neu_esc.yaml \
+  --experiment-config configs/experiments/joint_pipeline.yaml
 ```
 
 For a quick pipeline check only, explicitly override the schedule:
@@ -132,8 +151,18 @@ Joint inference performs one generation per sample:
 python scripts/predict.py \
   --dataset neu_esc \
   --architecture joint \
-  --joint-adapter outputs/neu_esc/joint/pipeline_r32/best_model \
-  --output-dir outputs/neu_esc/joint/pipeline_r32/inference
+  --joint-adapter outputs/neu_esc/joint/full_r32/best_model \
+  --output-dir outputs/neu_esc/joint/full_r32/inference
+```
+
+Zero-shot uses the same two-task output contract, but omits both the one-shot
+example and the LoRA adapter:
+
+```bash
+python scripts/predict.py \
+  --dataset neu_esc \
+  --architecture zero_shot \
+  --output-dir outputs/neu_esc/zero_shot
 ```
 
 Dual Adapter inference runs the independent Sentiment and Topic adapters on the
@@ -168,6 +197,22 @@ Inference writes:
 - `performance.json`: elapsed time, input/output throughput, samples/second,
   parse-invalid counts, majority fallbacks, and peak GPU memory sampled by NVML.
 
+Generate confusion matrices and the task-error distribution without rerunning
+the model:
+
+```bash
+python scripts/generate_figures.py \
+  --dataset neu_esc \
+  --predictions results/predictions/neu_esc/joint_pipeline_r32.csv \
+  --prefix neu_joint_pipeline_r32
+```
+
+The mapping from manuscript tables/figures to artifacts is documented in
+[`results/metrics/paper_results_mapping.md`](results/metrics/paper_results_mapping.md).
+Verified LoRA release requirements are documented in
+[`checkpoints/README.md`](checkpoints/README.md). Checkpoints and numerical CSVs
+are intentionally not fabricated; they must be added from audited experiment runs.
+
 Run the evaluation-policy tests in the training/development environment:
 
 ```bash
@@ -194,6 +239,31 @@ The ablation reported only Base, Masking, and Full Pipeline; a standalone
 Focal-only configuration was not reported as a separate row. Outputs are written
 under `outputs/<dataset>/<architecture>/<configuration>/` and excluded from Git.
 
+## Reproducing tables and figures
+
+Run the exact reported ablation or rank matrix with:
+
+```bash
+python scripts/run_ablation.py --dataset neu_esc
+python scripts/run_rank_sweep.py --architecture joint --dataset neu_esc
+python scripts/run_rank_sweep.py --architecture dual_adapter --dataset neu_esc
+```
+
+Use `--dry-run` to inspect the resolved commands without launching training.
+Training is followed by `scripts/predict.py` and `scripts/evaluate.py`; table and
+figure provenance is listed in
+[`paper_results_mapping.md`](results/metrics/paper_results_mapping.md). No
+McNemar significance-test implementation is included in this release.
+
+## Pretrained LoRA adapters
+
+The base Vistral model is downloaded from Hugging Face and is not redistributed.
+The six principal Joint/Dual LoRA adapters will be attached to the audited
+Zenodo release. See [`checkpoints/README.md`](checkpoints/README.md) for the
+expected layout. Until those files are added, the repository provides training
+and inference code but does not claim that placeholder checkpoints reproduce
+the manuscript numbers.
+
 ## Data availability
 
 The datasets are not redistributed here. Please obtain and cite them from their
@@ -217,6 +287,12 @@ Suggested manuscript text:
 
 > **Code Availability.** Our source code is available on GitHub and Zenodo as
 > follows: [GitHub URL] and [Zenodo DOI].
+
+## Citation
+
+GitHub reads [`CITATION.cff`](CITATION.cff) and exposes the repository citation
+through its “Cite this repository” menu. The software DOI will be added after
+the versioned Zenodo archive is published.
 
 ## License
 

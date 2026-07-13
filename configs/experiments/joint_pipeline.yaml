@@ -1,0 +1,5 @@
+architecture: joint
+completion_only_masking: true
+loss_type: focal
+focal_gamma: 2.0
+use_class_alpha: true

@@ -1,0 +1,4 @@
+datasets: [neu_esc, uit_vsfc]
+ranks: [8, 16, 32, 64]
+configurations: [base, full]
+note: No Joint rank sweep was reported for ViCTSD.

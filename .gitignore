@@ -5,14 +5,28 @@ __pycache__/
 venv/
 data/*
 !data/README.md
+!data/raw/
+data/raw/*
+!data/raw/**/
+!data/raw/**/.gitkeep
+!data/processed/
+data/processed/*
+!data/processed/**/
+!data/processed/**/.gitkeep
 outputs/
 runs/
-checkpoints/
+checkpoints/*
+!checkpoints/README.md
+!checkpoints/**/.gitkeep
 *.safetensors
 *.bin
 *.pt
 *.pth
 .env
+results/predictions/**/*.csv
+results/logs/*
+results/figures/*
+!results/figures/.gitkeep
 
 # Private/exploratory artifacts; do not publish in the reproducibility release.
 NEU_2_focal.ipynb

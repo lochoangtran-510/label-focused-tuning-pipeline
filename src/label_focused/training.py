@@ -11,9 +11,10 @@ import json
 
 import pandas as pd
 import torch
-import torch.nn.functional as functional
 
 from .datasets import DATASET_REGISTRY, DatasetSpec
+from .completion_collator import make_completion_collator, validate_completion_masking
+from .losses import flatten_label_token_weights, label_focused_loss
 from .prompting import build_single_task_prompt, build_training_prompt, labels_from_row
 
 
@@ -186,7 +187,7 @@ def make_trainer(
 ):
     from peft import LoraConfig, get_peft_model
     from transformers import EarlyStoppingCallback, TrainingArguments
-    from trl import DataCollatorForCompletionOnlyLM, SFTTrainer
+    from trl import SFTTrainer
 
     spec = DATASET_REGISTRY[config.dataset]
     peft_config = LoraConfig(
@@ -205,10 +206,11 @@ def make_trainer(
 
     collator = None
     if config.use_masking:
-        response_ids = tokenizer.encode("[/INST]", add_special_tokens=False)
-        collator = DataCollatorForCompletionOnlyLM(
-            response_template=response_ids, tokenizer=tokenizer, mlm=False
+        collator = make_completion_collator(tokenizer)
+        masking_check = validate_completion_masking(
+            collator, tokenizer, train_dataset[0]["text"]
         )
+        print(f"Completion masking check: {masking_check}")
 
     output_dir = str(Path(config.output_dir) / task) if task else config.output_dir
     args = TrainingArguments(
@@ -261,23 +263,17 @@ def make_trainer(
             self.gamma = kwargs.pop("focal_gamma")
             self.alpha = kwargs.pop("sample_weights")
             self.label_ids = kwargs.pop("label_token_ids")
+            self.token_weights = flatten_label_token_weights(
+                self.label_ids, self.alpha
+            )
             super().__init__(*args, **kwargs)
 
         def compute_loss(self, model, inputs, return_outputs=False, **kwargs):
             labels = inputs["labels"]
             outputs = model(**inputs)
-            logits = outputs.logits[:, :-1, :].contiguous()
-            targets = labels[:, 1:].contiguous()
-            active = targets.ne(-100)
-            flat_logits = logits[active]
-            flat_targets = targets[active]
-            ce = functional.cross_entropy(flat_logits, flat_targets, reduction="none")
-            probability = torch.exp(-ce)
-            alpha = torch.ones_like(ce)
-            for label, token_ids in self.label_ids.items():
-                for token_id in token_ids:
-                    alpha[flat_targets == token_id] = self.alpha.get(label, 1.0)
-            loss = (((1.0 - probability) ** self.gamma) * alpha * ce).mean()
+            loss = label_focused_loss(
+                outputs.logits, labels, self.gamma, self.token_weights
+            )
             return (loss, outputs) if return_outputs else loss
 
     return FocalTrainer(

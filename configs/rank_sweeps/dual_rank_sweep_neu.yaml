@@ -1,0 +1,11 @@
+dataset: neu_esc
+architecture: dual_adapter
+configuration: full
+rank_pairs:
+  - [8, 8]
+  - [16, 16]
+  - [32, 32]
+  - [64, 64]
+  - [16, 64]
+  - [64, 16]
+  - [32, 8]

@@ -1,0 +1,4 @@
+architecture: zero_shot
+training: false
+completion_only_masking: false
+loss_type: none

@@ -13,6 +13,10 @@ Dual + Pipeline results on NEU-ESC, ViCTSD, and UIT-VSFC alongside external
 baselines. Results marked with a dagger in the paper came from prior work and
 were not re-evaluated in this repository.
 
+The zero-shot Vistral baseline is reproduced through `scripts/predict.py` with
+`--architecture zero_shot`; it uses the dataset-specific two-task instruction
+without a one-shot exemplar and does not load a LoRA adapter.
+
 ## Joint ablation (Table 6)
 
 Only three configurations were reported:
@@ -39,3 +43,8 @@ There is no standalone Focal-only row in Table 6.
 - Minority-class recall and McNemar tests: all three datasets using their
   ablation configurations.
 - Detailed error analysis and confusion matrices: NEU-ESC at r=32.
+
+Statistical significance tests are outside the scope of this public code
+release. The repository focuses on training, full-test inference with
+task-specific majority fallback, primary metrics, efficiency, confusion
+matrices, and descriptive error analysis.

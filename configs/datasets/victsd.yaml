@@ -1,0 +1,29 @@
+dataset: victsd
+train_file: data/processed/victsd/train.csv
+validation_file: data/processed/victsd/validation.csv
+test_file: data/processed/victsd/test.csv
+title_column: Title
+comment_column: Comment
+text_column: Text
+sentiment_column: Toxicity
+topic_column: Topic
+separator: " [SEP] "
+sentiment_labels: [Non-toxic, Toxic]
+topic_labels:
+  - KinhDoanh
+  - OtoXemay
+  - TheGioi
+  - TheThao
+  - KhoaHoc
+  - ThoiSu
+  - PhapLuat
+  - GiaoDuc
+  - SucKhoe
+  - GiaiTri
+one_shot_sentiment: Non-toxic
+one_shot_topic: TheGioi
+one_shot_text: "Biden dẫn Trump 13 điểm [SEP] Cuộc bầu cử ở Mỹ là công khai và công bằng nhất."
+default_rank: 8
+max_length: 1024
+epochs: 3
+majority_policy: calculate_from_training_split

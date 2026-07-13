@@ -146,7 +146,17 @@ def load_splits(
 ) -> dict[str, pd.DataFrame]:
     """Load train/validation/test frames using one stable public interface."""
     spec = DATASET_REGISTRY[dataset_name]
-    if dataset_name == "uit_vsfc":
+    root = Path(data_dir)
+    processed_root = root / "processed" / dataset_name
+    legacy_root = root / dataset_name
+    local_root = processed_root if processed_root.exists() else legacy_root
+    local_files = {
+        split: local_root / f"{split}.csv"
+        for split in ("train", "validation", "test")
+    }
+    if all(path.exists() for path in local_files.values()):
+        raw = {split: pd.read_csv(path) for split, path in local_files.items()}
+    elif dataset_name == "uit_vsfc":
         from datasets import load_dataset
 
         dataset = load_dataset("uitnlp/vietnamese_students_feedback")
@@ -157,9 +167,9 @@ def load_splits(
             "test": dataset["test"].to_pandas(),
         }
     else:
-        root = Path(data_dir) / dataset_name
-        raw = {
-            split: pd.read_csv(root / f"{split}.csv")
-            for split in ("train", "validation", "test")
-        }
+        missing = [str(path) for path in local_files.values() if not path.exists()]
+        raise FileNotFoundError(
+            "Processed dataset files are missing. Run scripts/prepare_data.py. "
+            f"Missing: {missing}"
+        )
     return {key: prepare_frame(value, spec) for key, value in raw.items()}
