@@ -1,4 +1,11 @@
 dataset: neu_esc
+source: hung20gg/NEU-ESC
+source_revision: daf543ad1992153cd2be9fec3cb59aa0fc714147
+gated: true
+source_files:
+  train: train_set.csv
+  validation: val_set.csv
+  test: test_set.csv
 train_file: data/processed/neu_esc/train.csv
 validation_file: data/processed/neu_esc/validation.csv
 test_file: data/processed/neu_esc/test.csv

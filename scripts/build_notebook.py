@@ -51,8 +51,9 @@ only a thin interface to the same Python CLI used on Linux."""
     nbf.v4.new_markdown_cell(
         """## 1. Installation
 
-Never paste an access token into a notebook. Authenticate with a Colab secret
-only if the selected model requires it."""
+Never paste an access token into a notebook. NEU-ESC is gated, so accept its
+Hugging Face conditions and authenticate through a private Colab `HF_TOKEN`
+secret. A selected base model may also require authentication."""
     ),
     nbf.v4.new_code_cell(
         """!git clone https://github.com/lochoangtran-510/label-focused-tuning-pipeline.git
@@ -61,8 +62,8 @@ only if the selected model requires it."""
     ),
     nbf.v4.new_markdown_cell("## 2. Prepare one dataset"),
     nbf.v4.new_code_cell(
-        """# UIT-VSFC downloads automatically. For NEU-ESC or ViCTSD, first
-# place the official source CSVs under data/raw/<dataset>/.
+        """# All three datasets download automatically from Hugging Face.
+# NEU-ESC requires prior access approval and authentication.
 DATASET = "uit_vsfc"  # neu_esc | uit_vsfc | victsd
 !python scripts/prepare_data.py --dataset {DATASET}"""
     ),

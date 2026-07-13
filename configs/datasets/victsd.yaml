@@ -1,4 +1,10 @@
 dataset: victsd
+source: tarudesu/ViCTSD
+source_revision: 65a073f2c48401410b264213229a6c52417f367a
+source_files:
+  train: ViCTSD_train.csv
+  validation: ViCTSD_valid.csv
+  test: ViCTSD_test.csv
 train_file: data/processed/victsd/train.csv
 validation_file: data/processed/victsd/validation.csv
 test_file: data/processed/victsd/test.csv

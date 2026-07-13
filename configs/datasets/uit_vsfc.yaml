@@ -1,5 +1,6 @@
 dataset: uit_vsfc
 source: uitnlp/vietnamese_students_feedback
+source_revision: 7b56c6cb1c9c8523249f407044c838660df3811a
 train_file: data/processed/uit_vsfc/train.csv
 validation_file: data/processed/uit_vsfc/validation.csv
 test_file: data/processed/uit_vsfc/test.csv

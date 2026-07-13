@@ -19,7 +19,7 @@ and alpha-balanced focal loss are shared by all experiments.
 ```text
 .
 ├── configs/{datasets,experiments,rank_sweeps}/
-├── data/{raw,processed}/                   # local only; not redistributed
+├── data/{raw,processed}/                   # downloaded cache; not redistributed
 ├── notebooks/colab_quickstart.ipynb       # Colab quickstart
 ├── scripts/{prepare_data,train,predict,evaluate}.py
 ├── checkpoints/README.md                   # LoRA release layout
@@ -76,8 +76,11 @@ configuration cell:
 DATASET_NAME = "neu_esc"  # "neu_esc", "uit_vsfc", or "victsd"
 ```
 
-No Hugging Face token is stored in the source. Authenticate outside the
-notebook only when access to a selected model requires it.
+All three datasets are downloaded from Hugging Face while preserving their
+official train/validation/test splits. NEU-ESC is gated: accept its access
+conditions at <https://huggingface.co/datasets/hung20gg/NEU-ESC>, then run
+`hf auth login` (or provide `HF_TOKEN` through a private Colab secret).
+No Hugging Face token is stored in the source.
 
 ## YAML-driven training
 
@@ -266,8 +269,14 @@ the manuscript numbers.
 
 ## Data availability
 
-The datasets are not redistributed here. Please obtain and cite them from their
-original publications:
+The datasets are not redistributed in this Git repository. The preparation
+script downloads their Hugging Face copies and preserves the published splits:
+
+- UIT-VSFC: <https://huggingface.co/datasets/uitnlp/vietnamese_students_feedback>
+- NEU-ESC (gated): <https://huggingface.co/datasets/hung20gg/NEU-ESC>
+- ViCTSD: <https://huggingface.co/datasets/tarudesu/ViCTSD>
+
+Please also cite the original publications:
 
 - UIT-VSFC: <https://doi.org/10.1109/KSE.2018.8573337>
 - NEU-ESC: <https://doi.org/10.48550/arXiv.2506.23524>

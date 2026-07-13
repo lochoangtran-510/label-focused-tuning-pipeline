@@ -1,9 +1,9 @@
 # Data preparation
 
-Raw datasets are intentionally excluded from version control. Obtain each dataset
-from its original source and preserve its license.
-
-Place source files under `data/raw/`, then create the processed splits:
+Raw and processed datasets are intentionally excluded from version control.
+The preparation command downloads all three datasets from Hugging Face and
+preserves their official splits. Dataset revisions are pinned in
+`src/label_focused/datasets.py` and `configs/datasets/` for reproducibility:
 
 ```bash
 python scripts/prepare_data.py --dataset neu_esc
@@ -11,21 +11,30 @@ python scripts/prepare_data.py --dataset uit_vsfc
 python scripts/prepare_data.py --dataset victsd
 ```
 
-Expected layout:
+Sources:
+
+- `hung20gg/NEU-ESC` (gated)
+- `uitnlp/vietnamese_students_feedback`
+- `tarudesu/ViCTSD`
+
+Before preparing NEU-ESC, accept the conditions on its Hugging Face page and
+authenticate with `hf auth login`. In Colab, keep `HF_TOKEN` in a private
+secret; never paste it into the notebook or commit it.
+
+Generated layout:
 
 ```text
 data/
-├── raw/
-│   ├── neu_esc/        # train_set.csv, val_set.csv, test_set.csv accepted
-│   └── victsd/         # ViCTSD_train/valid/test.csv accepted
+├── raw/                # optional offline fallback; never committed
 └── processed/
     ├── neu_esc/{train,validation,test}.csv
     ├── uit_vsfc/{train,validation,test}.csv
     └── victsd/{train,validation,test}.csv
 ```
 
-UIT-VSFC is loaded directly from
-`uitnlp/vietnamese_students_feedback` through Hugging Face Datasets.
+For offline use, existing NEU-ESC or ViCTSD source CSVs under
+`data/raw/<dataset>/` are accepted as a fallback. When complete processed CSVs
+already exist, training and evaluation use them without downloading again.
 
 ViCTSD preprocessing concatenates the article title and comment with ` [SEP] `.
 The preparation command preserves the official split; it does not randomly
