@@ -261,11 +261,11 @@ figure provenance is listed in
 ## Pretrained LoRA adapters
 
 The base Vistral model is downloaded from Hugging Face and is not redistributed.
-The six principal Joint/Dual LoRA adapters will be attached to the audited
-Zenodo release. See [`checkpoints/README.md`](checkpoints/README.md) for the
-expected layout. Until those files are added, the repository provides training
-and inference code but does not claim that placeholder checkpoints reproduce
-the manuscript numbers.
+The six principal configurations comprise three Joint adapters and three Dual
+Adapter pairs (nine PEFT adapters in total). They will be attached to the
+audited Zenodo release. See [`checkpoints/README.md`](checkpoints/README.md) for
+the exact rank-aware layout and weight checksums. GitHub contains the code and
+manifest, while the large SafeTensors files are distributed through Zenodo.
 
 ## Data availability
 

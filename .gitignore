@@ -17,6 +17,7 @@ outputs/
 runs/
 checkpoints/*
 !checkpoints/README.md
+!checkpoints/MANIFEST.sha256
 !checkpoints/**/.gitkeep
 *.safetensors
 *.bin
@@ -27,6 +28,8 @@ results/predictions/**/*.csv
 results/logs/*
 results/figures/*
 !results/figures/.gitkeep
+results/unverified/*
+!results/unverified/README.md
 
 # Private/exploratory artifacts; do not publish in the reproducibility release.
 NEU_2_focal.ipynb

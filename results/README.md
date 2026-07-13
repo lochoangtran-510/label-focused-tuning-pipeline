@@ -9,3 +9,7 @@ outputs from the released checkpoints.
 - `metrics/`: table-level CSV/JSON artifacts.
 - `figures/`: generated plots.
 - `logs/`: run logs and environment metadata.
+
+`unverified/` is a quarantine area for imported legacy artifacts whose filename
+or provenance does not match a released checkpoint. Its contents are excluded
+from Git and must not be cited until audited.
