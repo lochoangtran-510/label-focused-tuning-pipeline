@@ -252,8 +252,7 @@ python scripts/run_rank_sweep.py --architecture dual_adapter --dataset neu_esc
 Use `--dry-run` to inspect the resolved commands without launching training.
 Training is followed by `scripts/predict.py` and `scripts/evaluate.py`; table and
 figure provenance is listed in
-[`paper_results_mapping.md`](results/metrics/paper_results_mapping.md). No
-McNemar significance-test implementation is included in this release.
+[`paper_results_mapping.md`](results/metrics/paper_results_mapping.md).
 
 ## Pretrained LoRA adapters
 

@@ -8,10 +8,10 @@ All public presets use `epochs: 3` and `max_steps: -1`.
 
 ## Main comparison
 
-Tables 3–5 report Joint LoRA, Joint QLoRA, Joint + Pipeline, Dual Adapter, and
-Dual + Pipeline results on NEU-ESC, ViCTSD, and UIT-VSFC alongside external
-baselines. Results marked with a dagger in the paper came from prior work and
-were not re-evaluated in this repository.
+Tables 3–5 report Vistral-7B Zero-shot, Joint LoRA, Joint + Pipeline, Dual
+Adapter, and Dual + Pipeline results on NEU-ESC, ViCTSD, and UIT-VSFC alongside
+external baselines. Results marked with a dagger in the paper came from prior
+work and were not re-evaluated in this repository.
 
 The zero-shot Vistral baseline is reproduced through `scripts/predict.py` with
 `--architecture zero_shot`; it uses the dataset-specific two-task instruction
@@ -40,11 +40,6 @@ There is no standalone Focal-only row in Table 6.
 ## Additional analysis
 
 - Inference efficiency (Table 10): UIT-VSFC test set only, on an A100 40 GB.
-- Minority-class recall and McNemar tests: all three datasets using their
-  ablation configurations.
+- Minority-class recall analysis: all three datasets using their ablation
+  configurations.
 - Detailed error analysis and confusion matrices: NEU-ESC at r=32.
-
-Statistical significance tests are outside the scope of this public code
-release. The repository focuses on training, full-test inference with
-task-specific majority fallback, primary metrics, efficiency, confusion
-matrices, and descriptive error analysis.
