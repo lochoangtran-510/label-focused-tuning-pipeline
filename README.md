@@ -328,8 +328,8 @@ Suggested manuscript text:
 ## Citation
 
 GitHub reads [`CITATION.cff`](CITATION.cff) and exposes the repository citation
-through its “Cite this repository” menu. The software DOI will be added after
-the versioned Zenodo archive is published.
+through its “Cite this repository” menu. The archived software release is
+available through the Zenodo DOI above.
 
 ## License
 
