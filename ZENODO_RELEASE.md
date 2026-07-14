@@ -50,7 +50,7 @@ regenerate the missing adapters remain public.
 - **Title:** Label-Focused Tuning Pipeline
 - **Resource type:** Software
 - **Version:** 1.0.0
-- **Reserved version DOI:** `10.5281/zenodo.21348518`
+- **Published version DOI:** `10.5281/zenodo.21348518`
 - **Creators:** Hoang Xuan Loc Tran; Thanh Hung Bui
 - **Licenses:** MIT for the source-code archive; Academic Free License 3.0
   (`AFL-3.0`) for the adapter archive, following the license declared by the
@@ -60,7 +60,6 @@ regenerate the missing adapters remain public.
 - **Description:** Source code, reproducible configurations, aggregate metrics,
   and audited PEFT/LoRA adapters for the associated article.
 
-Save the upload as a draft first. After checking the file list, metadata,
-creator order, license, reserved DOI, and known-gap statement, publish it. The
-reserved version DOI above has already been added to `README.md` and
-`CITATION.cff`; it becomes registered only when the record is published.
+The upload was published on July 14, 2026 after checking the file list,
+metadata, creator order, licenses, DOI, and known-gap statement. The registered
+version DOI above is included in `README.md` and `CITATION.cff`.

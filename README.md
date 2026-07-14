@@ -316,8 +316,8 @@ Our source code is available on GitHub and Zenodo as follows:
 - GitHub: <https://github.com/lochoangtran-510/label-focused-tuning-pipeline>
 - Zenodo: <https://doi.org/10.5281/zenodo.21348518>
 
-The DOI above is reserved for release `v1.0.0` and becomes registered when the
-Zenodo record is published. The pre-publication packaging checklist is in
+The DOI above identifies the published Zenodo release `v1.0.0`. The release
+packaging and integrity checklist is in
 [`ZENODO_RELEASE.md`](ZENODO_RELEASE.md).
 
 Suggested manuscript text:
