@@ -37,6 +37,17 @@ def test_invalid_predictions_are_corrected_without_dropping_rows():
     ]
 
 
+def test_generated_labels_are_canonicalized_case_insensitively():
+    spec = DATASET_REGISTRY["uit_vsfc"]
+    frame = pd.DataFrame(
+        {"pred_sentiment": ["positive"], "pred_topic": ["LECTURER"]}
+    )
+    corrected = correct_full_test_predictions(frame, spec, "Neutral", "Others")
+    assert corrected.loc[0, "pred_sentiment_corrected"] == "Positive"
+    assert corrected.loc[0, "pred_topic_corrected"] == "Lecturer"
+    assert not corrected.loc[0, "any_invalid"]
+
+
 def test_majority_is_calculated_from_training_split():
     spec = DATASET_REGISTRY["uit_vsfc"]
     train = pd.DataFrame(

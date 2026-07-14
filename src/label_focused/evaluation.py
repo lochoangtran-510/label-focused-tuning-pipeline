@@ -59,17 +59,19 @@ def correct_full_test_predictions(
     result["pred_topic_original"] = (
         result["pred_topic"].fillna("").astype(str).str.strip()
     )
-    result["sentiment_invalid"] = ~result["pred_sentiment_original"].isin(
-        spec.sentiment_labels
+    sentiment_lookup = {label.casefold(): label for label in spec.sentiment_labels}
+    topic_lookup = {label.casefold(): label for label in spec.topic_labels}
+    canonical_sentiment = result["pred_sentiment_original"].str.casefold().map(
+        sentiment_lookup
     )
-    result["topic_invalid"] = ~result["pred_topic_original"].isin(spec.topic_labels)
+    canonical_topic = result["pred_topic_original"].str.casefold().map(topic_lookup)
+    result["sentiment_invalid"] = canonical_sentiment.isna()
+    result["topic_invalid"] = canonical_topic.isna()
     result["any_invalid"] = result["sentiment_invalid"] | result["topic_invalid"]
-    result["pred_sentiment_corrected"] = result["pred_sentiment_original"].where(
-        ~result["sentiment_invalid"], majority_sentiment
+    result["pred_sentiment_corrected"] = canonical_sentiment.fillna(
+        majority_sentiment
     )
-    result["pred_topic_corrected"] = result["pred_topic_original"].where(
-        ~result["topic_invalid"], majority_topic
-    )
+    result["pred_topic_corrected"] = canonical_topic.fillna(majority_topic)
     if len(result) != len(frame):
         raise AssertionError("Full-test correction changed the number of rows")
     return result

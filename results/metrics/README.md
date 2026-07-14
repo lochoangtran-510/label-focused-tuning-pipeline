@@ -35,6 +35,11 @@ The corrected UIT-VSFC Dual Base r=8/16 report has Topic Accuracy 89.64%,
 Topic Macro F1 81.72%, a runtime of 117.1 seconds, and zero parse errors. These
 are also author-confirmed values from the revised manuscript.
 
+`uit_vsfc/table10_efficiency.json` and `.csv` consolidate the five UIT-VSFC
+efficiency rows from their retained raw reports. Table 10 uses Joint r=16 and
+Dual Sentiment/Topic r=8/16; throughput denotes generated output tokens per
+second.
+
 Row-level Joint + Pipeline r=8 predictions were also supplied for UIT-VSFC and
 ViCTSD. Their row counts, label sets, Accuracy, Macro F1, and Weighted F1 were
 recomputed and matched the corresponding reports, so they are retained under

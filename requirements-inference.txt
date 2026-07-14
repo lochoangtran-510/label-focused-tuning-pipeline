@@ -2,6 +2,7 @@
 numpy>=1.26
 pandas>=2.2
 scikit-learn>=1.4
+datasets>=2.19,<3
 huggingface-hub>=0.26
 nvidia-ml-py>=12.560
 torch>=2.4

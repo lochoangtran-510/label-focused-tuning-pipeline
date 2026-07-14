@@ -57,10 +57,13 @@ def build_inference_prompt(text: str, spec: DatasetSpec, tokenizer: Any) -> str:
 
 
 def build_zero_shot_prompt(text: str, spec: DatasetSpec, tokenizer: Any) -> str:
-    """Build the Vistral baseline prompt without the one-shot exemplar."""
+    """Build the notebook-compatible Vistral prompt without an exemplar."""
     messages = [
-        {"role": "system", "content": spec.system_prompt},
-        {"role": "user", "content": f'{spec.input_label}: "{text}"'},
+        {"role": "system", "content": spec.zero_shot_system_prompt},
+        {
+            "role": "user",
+            "content": f'{spec.input_label}: "{text}"\nTrích xuất JSON:',
+        },
     ]
     return tokenizer.apply_chat_template(
         messages, tokenize=False, add_generation_prompt=True
@@ -115,7 +118,9 @@ def build_single_task_prompt(
     )
 
 
-def parse_prediction(raw: str) -> tuple[str, str]:
+def parse_prediction(
+    raw: str, sentiment_key: str = "Sentiment"
+) -> tuple[str, str]:
     """Extract both labels independently from the last JSON object."""
     start, end = raw.rfind("{"), raw.rfind("}")
     if start < 0 or end < start:
@@ -124,7 +129,7 @@ def parse_prediction(raw: str) -> tuple[str, str]:
         value = json.loads(raw[start : end + 1])
         if not isinstance(value, dict):
             return "PARSE_ERROR", "PARSE_ERROR"
-        sentiment = str(value.get("Sentiment", "PARSE_ERROR")).strip()
+        sentiment = str(value.get(sentiment_key, "PARSE_ERROR")).strip()
         topic = str(value.get("Topic", "PARSE_ERROR")).strip()
         return sentiment, topic
     except (json.JSONDecodeError, TypeError):

@@ -9,7 +9,7 @@
 | Table 7, minority recall | Classification reports in the same ablation files |
 | Table 8 / Figure 5, Joint ranks | NEU-ESC and UIT-VSFC `joint_base` and `joint_pipeline`, r=8/16/32/64 |
 | Table 9, Dual ranks | NEU-ESC `dual_pipeline`, including the reconciled full-test r=64/16 report |
-| Table 10, efficiency | Timing fields in UIT-VSFC reports; Dual Base records 117.1 s/588 tok/s/27.0 samples/s and Dual + Pipeline records 116.3 s/593 tok/s/27.2 samples/s |
+| Table 10, efficiency | `uit_vsfc/table10_efficiency.{json,csv}` consolidates Zero-shot, Joint r=16, and Dual r=8/16 timing fields; Dual Base records 117.1 s/588 tok/s/27.0 samples/s and Dual + Pipeline records 116.3 s/593 tok/s/27.2 samples/s |
 | Figure 6, confusion matrices | Requires row-level NEU-ESC r=32 predictions and `scripts/generate_figures.py` |
 | Figure 7, error analysis | Requires row-level NEU-ESC r=32 predictions and `scripts/generate_figures.py` |
 

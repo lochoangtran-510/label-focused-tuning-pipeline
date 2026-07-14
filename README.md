@@ -158,14 +158,33 @@ python scripts/predict.py \
   --output-dir outputs/neu_esc/joint/full_r32/inference
 ```
 
-Zero-shot uses the same two-task output contract, but omits both the one-shot
-example and the LoRA adapter:
+Zero-shot uses the dataset-specific two-task output contract, but omits both
+the one-shot example and the LoRA adapter:
 
 ```bash
 python scripts/predict.py \
   --dataset neu_esc \
   --architecture zero_shot \
   --output-dir outputs/neu_esc/zero_shot
+```
+
+This command follows the zero-shot notebooks for deterministic decoding
+(`temperature=0`, up to 100 new tokens), validates the generated labels, and
+applies the training-split majority fallback independently to each task. For
+ViCTSD, the generated JSON keys are `Toxicity` and `Topic`; the saved prediction
+schema remains normalized to `sentiment` and `topic` so the shared evaluator can
+be used. To produce the notebook-equivalent metrics and confusion matrices:
+
+```bash
+python scripts/evaluate.py \
+  --dataset neu_esc \
+  --predictions outputs/neu_esc/zero_shot/predictions.csv
+
+python scripts/generate_figures.py \
+  --dataset neu_esc \
+  --predictions outputs/neu_esc/zero_shot/predictions_corrected.csv \
+  --output-dir outputs/neu_esc/zero_shot/figures \
+  --prefix neu_esc_zero_shot
 ```
 
 Dual Adapter inference runs the independent Sentiment and Topic adapters on the
@@ -213,8 +232,9 @@ python scripts/generate_figures.py \
 The mapping from manuscript tables/figures to artifacts is documented in
 [`results/metrics/paper_results_mapping.md`](results/metrics/paper_results_mapping.md).
 Verified LoRA release requirements are documented in
-[`checkpoints/README.md`](checkpoints/README.md). Checkpoints and numerical CSVs
-are intentionally not fabricated; they must be added from audited experiment runs.
+[`checkpoints/README.md`](checkpoints/README.md). Only audited experiment
+artifacts are included. Missing checkpoints are documented explicitly and are
+never reconstructed from mislabeled or unverified files.
 
 Run the evaluation-policy tests in the training/development environment:
 
@@ -235,6 +255,10 @@ when reproducing reported results.
 | Dual Adapter rank sensitivity | Yes | No | No |
 | Inference efficiency | No | Yes | No |
 | Detailed error analysis | Yes | No | No |
+
+The UIT-VSFC efficiency comparison uses Joint `r=16` and Dual
+Sentiment/Topic `r=8/16` configurations. The retained Table 10 values are
+available in `results/metrics/uit_vsfc/table10_efficiency.{json,csv}`.
 
 The Dual Adapter rank analysis on NEU-ESC used these Sentiment/Topic pairs:
 `8/8`, `16/16`, `32/32`, `64/64`, `16/64`, `64/16`, and `32/8`.
@@ -261,11 +285,14 @@ figure provenance is listed in
 ## Pretrained LoRA adapters
 
 The base Vistral model is downloaded from Hugging Face and is not redistributed.
-The six principal configurations comprise three Joint adapters and three Dual
-Adapter pairs (nine PEFT adapters in total). They will be attached to the
-audited Zenodo release. See [`checkpoints/README.md`](checkpoints/README.md) for
-the exact rank-aware layout and weight checksums. GitHub contains the code and
-manifest, while the large SafeTensors files are distributed through Zenodo.
+The audited Zenodo package contains 37 verified PEFT adapters covering the
+principal, ablation, and reported rank-analysis configurations. Two
+task-specific weights were not retained: NEU-ESC Dual Pipeline Topic `r=16`
+and ViCTSD Dual Base Topic `r=32`. Both can be regenerated from the provided
+three-epoch configurations. See [`checkpoints/README.md`](checkpoints/README.md)
+for the rank-aware layout, availability notes, and weight checksums. GitHub
+contains the code and manifest, while the large SafeTensors files are
+distributed through Zenodo.
 
 ## Data availability
 
@@ -287,10 +314,11 @@ Please also cite the original publications:
 Our source code is available on GitHub and Zenodo as follows:
 
 - GitHub: <https://github.com/lochoangtran-510/label-focused-tuning-pipeline>
-- Zenodo: DOI will be added after the first archived release.
+- Zenodo: <https://doi.org/10.5281/zenodo.21348518>
 
-Add the version DOI after publishing the archived release on Zenodo, and update
-the same value in `CITATION.cff`.
+The DOI above is reserved for release `v1.0.0` and becomes registered when the
+Zenodo record is published. The pre-publication packaging checklist is in
+[`ZENODO_RELEASE.md`](ZENODO_RELEASE.md).
 
 Suggested manuscript text:
 

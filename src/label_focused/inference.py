@@ -1,4 +1,4 @@
-"""vLLM inference for Joint and Dual Adapter architectures."""
+"""vLLM inference for zero-shot, Joint, and Dual Adapter architectures."""
 
 from __future__ import annotations
 
@@ -33,7 +33,7 @@ class InferenceConfig:
     output_dir: str = "outputs/inference"
     max_lora_rank: int = 64
     max_model_length: int = 1024
-    max_new_tokens: int = 30
+    max_new_tokens: int = 100
     gpu_memory_utilization: float = 0.90
 
 
@@ -131,7 +131,7 @@ def run_inference(
     sampling = SamplingParams(
         max_tokens=config.max_new_tokens,
         temperature=0.0,
-        stop=["\n"],
+        stop=["<|im_end|>", "```\n"],
     )
 
     true_labels = [labels_from_row(row, spec) for _, row in test_frame.iterrows()]
@@ -167,7 +167,12 @@ def run_inference(
             outputs = llm.generate(joint_prompts, sampling, **generate_kwargs)
             all_outputs.extend(outputs)
             raw_joint = [output.outputs[0].text for output in outputs]
-            parsed = [parse_prediction(raw) for raw in raw_joint]
+            parsed = [
+                parse_prediction(raw, spec.zero_shot_sentiment_key)
+                if config.architecture == "zero_shot"
+                else parse_prediction(raw)
+                for raw in raw_joint
+            ]
             raw_sentiment = raw_joint
             raw_topic = raw_joint
         else:
@@ -213,6 +218,22 @@ def run_inference(
     corrected = correct_full_test_predictions(
         predictions, spec, majority_sentiment, majority_topic
     )
+    json_parse_error = (
+        (corrected["pred_sentiment_original"] == "PARSE_ERROR")
+        & (corrected["pred_topic_original"] == "PARSE_ERROR")
+    )
+    corrected["json_parse_error"] = json_parse_error
+    corrected["parse_status"] = "VALID"
+    corrected.loc[
+        corrected["sentiment_invalid"] & corrected["topic_invalid"], "parse_status"
+    ] = "BOTH_INVALID"
+    corrected.loc[
+        corrected["sentiment_invalid"] & ~corrected["topic_invalid"], "parse_status"
+    ] = "SENTIMENT_INVALID"
+    corrected.loc[
+        ~corrected["sentiment_invalid"] & corrected["topic_invalid"], "parse_status"
+    ] = "TOPIC_INVALID"
+    corrected.loc[json_parse_error, "parse_status"] = "INVALID_JSON"
     performance = {
         "architecture": config.architecture,
         "dataset": config.dataset,
@@ -225,6 +246,14 @@ def run_inference(
         "output_tokens_per_second": output_tokens / elapsed,
         "overall_tokens_per_second": (input_tokens + output_tokens) / elapsed,
         "peak_vram_gb": monitor.peak_gb,
+        "configuration": {
+            "max_new_tokens": config.max_new_tokens,
+            "max_model_length": config.max_model_length,
+            "gpu_memory_utilization": config.gpu_memory_utilization,
+            "temperature": 0.0,
+            "dtype": "float16",
+            "lora_enabled": uses_lora,
+        },
         "majority_fallback": {
             "sentiment": majority_sentiment,
             "topic": majority_topic,
@@ -235,6 +264,7 @@ def run_inference(
             "rows_with_any_invalid": int(corrected["any_invalid"].sum()),
         },
         "parse_error_counts": {
+            "json": int(json_parse_error.sum()),
             "sentiment": int((corrected["pred_sentiment_original"] == "PARSE_ERROR").sum()),
             "topic": int((corrected["pred_topic_original"] == "PARSE_ERROR").sum()),
         },

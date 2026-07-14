@@ -28,6 +28,7 @@ class DatasetSpec:
     hf_data_files: dict[str, str] | None = None
     preprocess: Callable[[pd.DataFrame], pd.DataFrame] | None = None
     system_prompt_override: str | None = None
+    zero_shot_sentiment_key: str = "Sentiment"
 
     @property
     def system_prompt(self) -> str:
@@ -49,6 +50,26 @@ class DatasetSpec:
             f'Ví dụ:\n{self.input_label}: "{self.one_shot_text}"\n'
             f'Output: {{"Sentiment": "{self.one_shot_sentiment}", '
             f'"Topic": "{self.one_shot_topic}"}}'
+        )
+
+    @property
+    def zero_shot_system_prompt(self) -> str:
+        """Dataset-specific zero-shot contract used by the base model."""
+        sentiments = ", ".join(self.sentiment_labels)
+        topics = ", ".join(self.topic_labels)
+        sentiment_task = (
+            "Độc hại (Toxicity)"
+            if self.zero_shot_sentiment_key == "Toxicity"
+            else "Cảm xúc (Sentiment)"
+        )
+        return (
+            "Thực hiện đồng thời hai nhiệm vụ:\n"
+            f"(1) {sentiment_task}: {sentiments}.\n"
+            f"(2) Chủ đề (Topic): {topics}.\n"
+            f"Chỉ trả về JSON với đúng hai khóa: "
+            f"{self.zero_shot_sentiment_key} và Topic. Không giải thích thêm.\n"
+            "Định dạng bắt buộc:\n"
+            f'{{"{self.zero_shot_sentiment_key}": "Nhãn", "Topic": "Nhãn"}}'
         )
 
 
@@ -131,6 +152,7 @@ DATASET_REGISTRY = {
             "test": "ViCTSD_test.csv",
         },
         preprocess=_prepare_victsd,
+        zero_shot_sentiment_key="Toxicity",
         system_prompt_override=(
             "Thực hiện đồng thời hai nhiệm vụ:\n"
             "(1) Sentiment: Non-toxic hoặc Toxic.\n"

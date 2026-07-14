@@ -1,0 +1,62 @@
+{
+  "table": "Table 10",
+  "dataset": "UIT-VSFC",
+  "test_samples": 3166,
+  "hardware": "NVIDIA A100-SXM4-40GB",
+  "engine": "vLLM",
+  "throughput_definition": "generated output tokens per second",
+  "models": [
+    {
+      "model": "Vistral-7B (Zero-shot)",
+      "rank": null,
+      "peak_vram_gb": 35.31,
+      "time_seconds": 40.71,
+      "throughput_tokens_per_second": 1467.26,
+      "speed_samples_per_second": 77.77,
+      "fallback_samples": 18,
+      "source": "zero_shot/report.txt"
+    },
+    {
+      "model": "Vistral-7B (Joint LoRA)",
+      "rank": 16,
+      "peak_vram_gb": 35.95,
+      "time_seconds": 80.96,
+      "throughput_tokens_per_second": 732.49,
+      "speed_samples_per_second": 39.11,
+      "fallback_samples": 0,
+      "source": "../../../checkpoints/uit_vsfc/joint_base_r16/performance_metrics.json"
+    },
+    {
+      "model": "Vistral-7B (Joint + Pipeline)",
+      "rank": 16,
+      "peak_vram_gb": 35.95,
+      "time_seconds": 81.77,
+      "throughput_tokens_per_second": 726.93,
+      "speed_samples_per_second": 38.72,
+      "fallback_samples": 0,
+      "source": "../../../checkpoints/uit_vsfc/joint_pipeline_r16/performance_metrics.json"
+    },
+    {
+      "model": "Vistral-7B (Dual Adapter)",
+      "sentiment_rank": 8,
+      "topic_rank": 16,
+      "peak_vram_gb": 35.28,
+      "time_seconds": 117.1,
+      "throughput_tokens_per_second": 588.0,
+      "speed_samples_per_second": 27.0,
+      "fallback_samples": 0,
+      "source": "dual_base/r8_r16.txt"
+    },
+    {
+      "model": "Vistral-7B (Dual + Pipeline)",
+      "sentiment_rank": 8,
+      "topic_rank": 16,
+      "peak_vram_gb": 35.28,
+      "time_seconds": 116.3,
+      "throughput_tokens_per_second": 593.0,
+      "speed_samples_per_second": 27.2,
+      "fallback_samples": 0,
+      "source": "dual_pipeline/r8_r16.txt"
+    }
+  ]
+}

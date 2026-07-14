@@ -1,0 +1,6 @@
+model,sentiment_rank,topic_rank,peak_vram_gb,time_seconds,throughput_tokens_per_second,speed_samples_per_second,fallback_samples,test_samples
+Vistral-7B (Zero-shot),,,35.31,40.71,1467.26,77.77,18,3166
+Vistral-7B (Joint LoRA),16,16,35.95,80.96,732.49,39.11,0,3166
+Vistral-7B (Joint + Pipeline),16,16,35.95,81.77,726.93,38.72,0,3166
+Vistral-7B (Dual Adapter),8,16,35.28,117.1,588.0,27.0,0,3166
+Vistral-7B (Dual + Pipeline),8,16,35.28,116.3,593.0,27.2,0,3166

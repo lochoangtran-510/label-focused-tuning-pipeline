@@ -8,6 +8,7 @@ authors:
   - family-names: Bui
     given-names: Thanh Hung
 version: 1.0.0
-date-released: 2026-07-12
+date-released: 2026-07-14
+doi: 10.5281/zenodo.21348518
 license: MIT
 repository-code: "https://github.com/lochoangtran-510/label-focused-tuning-pipeline"

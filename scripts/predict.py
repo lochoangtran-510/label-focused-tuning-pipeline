@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run Joint or Dual Adapter vLLM inference on a complete test split."""
+"""Run zero-shot, Joint, or Dual Adapter inference on a complete test split."""
 
 from __future__ import annotations
 
@@ -30,7 +30,7 @@ def arguments() -> argparse.Namespace:
     parser.add_argument("--topic-adapter")
     parser.add_argument("--max-lora-rank", type=int, default=64)
     parser.add_argument("--max-model-length", type=int, default=1024)
-    parser.add_argument("--max-new-tokens", type=int, default=30)
+    parser.add_argument("--max-new-tokens", type=int, default=100)
     parser.add_argument("--gpu-memory-utilization", type=float, default=0.90)
     return parser.parse_args()
 

@@ -15,6 +15,7 @@ data/processed/*
 !data/processed/**/.gitkeep
 outputs/
 runs/
+release/
 checkpoints/*
 !checkpoints/README.md
 !checkpoints/MANIFEST.sha256
@@ -23,6 +24,7 @@ checkpoints/*
 *.bin
 *.pt
 *.pth
+*.zip
 .env
 results/predictions/**/*.csv
 results/logs/*
