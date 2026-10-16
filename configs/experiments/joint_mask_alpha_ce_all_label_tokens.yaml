@@ -1,0 +1,7 @@
+architecture: joint
+completion_only_masking: true
+loss_type: cross_entropy
+focal_gamma: 0.0
+use_class_alpha: true
+alpha_scope: all_label_tokens
+protocol: revision

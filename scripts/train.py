@@ -23,6 +23,8 @@ from label_focused.training import (
     ExperimentConfig,
     load_model_and_tokenizer,
     make_prompt_datasets,
+    filtered_train_frame,
+    ensure_new_run,
     make_trainer,
     train_dual_adapters,
 )
@@ -75,7 +77,10 @@ def read_layered_configs(
         use_masking=bool(experiment.get("completion_only_masking", False)),
         use_focal_loss=loss_type == "focal",
         focal_gamma=float(experiment.get("focal_gamma", 2.0)),
-        seed=42,
+        use_class_alpha=experiment.get("use_class_alpha"),
+        alpha_scope=experiment.get("alpha_scope", "terminal_only"),
+        protocol=experiment.get("protocol", "paper"),
+        seed=int(experiment.get("seed", 42)),
     )
     validate_config(config)
     return config, {"dataset_config": dataset, "experiment_config": experiment}
@@ -86,15 +91,33 @@ def validate_config(config: ExperimentConfig) -> None:
         raise ValueError(f"Unsupported dataset: {config.dataset}")
     if config.architecture not in {"joint", "dual_adapter"}:
         raise ValueError(f"Unsupported architecture: {config.architecture}")
-    if config.epochs != 3:
-        raise ValueError("Reported experiments use exactly 3 epochs")
-    if config.lora_alpha not in (None, 2 * config.lora_rank):
-        raise ValueError("The paper uses LoRA alpha = 2 * rank")
-    if config.max_steps != -1:
-        raise ValueError(
-            "Public reproduction presets train for 3 complete epochs; "
-            "set max_steps=-1. Use the CLI --max-steps option only for a smoke test."
-        )
+    if config.protocol not in {"paper", "revision"}:
+        raise ValueError(f"Unsupported protocol: {config.protocol}")
+    if config.alpha_scope not in {"terminal_only", "all_label_tokens"}:
+        raise ValueError(f"Unsupported alpha_scope: {config.alpha_scope}")
+    for name in ("use_masking", "use_focal_loss"):
+        if not isinstance(getattr(config, name), bool):
+            raise ValueError(f"{name} must be boolean")
+    if config.use_class_alpha is not None and not isinstance(config.use_class_alpha, bool):
+        raise ValueError("use_class_alpha must be boolean or null")
+    if config.epochs <= 0 or config.max_length <= 1 or config.lora_rank <= 0:
+        raise ValueError("epochs/rank must be positive and max_length must exceed one")
+    if config.batch_size <= 0 or config.gradient_accumulation <= 0:
+        raise ValueError("batch_size and gradient_accumulation must be positive")
+    if config.focal_gamma < 0:
+        raise ValueError("focal_gamma must be nonnegative")
+    if config.max_steps != -1 and config.max_steps <= 0:
+        raise ValueError("max_steps must be -1 or positive")
+    if config.protocol == "paper":
+        if config.epochs != 3:
+            raise ValueError("Reported experiments use exactly 3 epochs")
+        if config.lora_alpha not in (None, 2 * config.lora_rank):
+            raise ValueError("The paper uses LoRA alpha = 2 * rank")
+        if config.max_steps != -1:
+            raise ValueError(
+                "Public reproduction presets train for 3 complete epochs; "
+                "set max_steps=-1. Use the CLI --max-steps option only for a smoke test."
+            )
 
 
 def environment_metadata() -> dict[str, Any]:
@@ -153,7 +176,7 @@ def main() -> None:
         config.output_root = args.output_root
 
     run_root = Path(config.output_dir)
-    run_root.mkdir(parents=True, exist_ok=True)
+    ensure_new_run(run_root)
     write_json(run_root / "resolved_config.json", asdict(config))
     write_json(run_root / "source_config.json", source_yaml)
     write_json(run_root / "environment.json", environment_metadata())
@@ -171,7 +194,7 @@ def main() -> None:
         )
         trainer = make_trainer(
             model, tokenizer, train_dataset, validation_dataset,
-            splits["train"], config,
+            filtered_train_frame(train_dataset), config,
         )
         result = trainer.train()
         best_dir = run_root / "best_model"

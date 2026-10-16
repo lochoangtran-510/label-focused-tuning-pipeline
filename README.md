@@ -12,15 +12,31 @@ Vietnamese multitask datasets:
 
 Dataset-specific behavior is isolated in
 `src/label_focused/datasets.py`; model loading, LoRA, completion-only masking,
-and alpha-balanced focal loss are shared by all experiments.
+class balancing, and focal loss are shared by the training pipeline.
+
+### Code revision (2026-10-16)
+
+Current source assigns class alpha by **JSON field, label, and token position**.
+It supports CE + masking + alpha independently of focal loss, with either
+`terminal_only` (default) or `all_label_tokens` alpha placement. Class counts
+come from the length-filtered training split. Base CE includes prompt and
+response loss and ignores padding only.
+
+The corrected source and new revision notebooks have **not** been used to
+regenerate the paper's archived scores or checkpoints. Historical result files
+and the published Zenodo v1.0.0 snapshot remain unchanged. See
+[`CHANGELOG.md`](CHANGELOG.md) and
+[`notebooks/revisions/README.md`](notebooks/revisions/README.md) for the new
+protocols and standalone Colab notebooks, including ViCTSD base CE.
 
 ## Repository structure
 
 ```text
 .
-├── configs/{datasets,experiments,rank_sweeps}/
+├── configs/{datasets,experiments,ablation,joint_rank,dual_rank,additional}/
 ├── data/{raw,processed}/                   # downloaded cache; not redistributed
 ├── notebooks/colab_quickstart.ipynb       # Colab quickstart
+├── notebooks/revisions/                  # corrected standalone Colab runs
 ├── scripts/{prepare_data,train,predict,evaluate}.py
 ├── checkpoints/README.md                   # LoRA release layout
 ├── results/                                # predictions, metrics, figures
@@ -37,8 +53,9 @@ and alpha-balanced focal loss are shared by all experiments.
 └── CITATION.cff
 ```
 
-Exploratory Colab notebooks and the manuscript PDF are excluded from the public
-repository. The clean notebook above is the only notebook entry point.
+Exploratory notebooks, credentials, raw datasets, and the manuscript PDF are
+excluded from the public repository. Standalone revision notebooks are published
+with outputs cleared and generic example Drive paths.
 See [`EXPERIMENTS.md`](EXPERIMENTS.md) before launching a reproduction run.
 
 ## Installation
@@ -84,9 +101,11 @@ No Hugging Face token is stored in the source.
 
 ## YAML-driven training
 
-All public reproduction presets train for **3 complete epochs**. They set
+The historical paper presets train for **3 complete epochs**. They set
 `max_steps: -1`, so `TrainingArguments` does not replace the epoch schedule with
-a fixed step limit.
+a fixed step limit. New NEU-ESC revision presets use a separate protocol with
+`max_length: 2024` and `max_steps: 2200`; they are not the historical NEU r=32
+paper configuration.
 
 Run a reported configuration with:
 
@@ -115,6 +134,45 @@ python scripts/train.py \
 The override is intended only for smoke testing and must not be used for
 reported results. Every run records `resolved_config.json`, `environment.json`,
 `training_metrics.json`, `trainer_log_history.json`, and `run_summary.json`.
+The trainer also writes `training_manifest.json` with filtered-train class counts,
+per-field alpha, tokenizer fingerprint, and loss semantics. An existing run
+directory containing run artifacts is rejected; choose a fresh output root to
+repeat a run.
+
+### CE + masking + alpha experiments
+
+Compare terminal-only and all-label alpha on the same dataset, rank, and seed:
+
+```bash
+python scripts/train.py \
+  --config configs/additional/uit_vsfc_mask_alpha_ce_terminal_only_r8_len1024.yaml
+
+python scripts/train.py \
+  --config configs/additional/uit_vsfc_mask_alpha_ce_all_label_tokens_r8_len1024.yaml
+```
+
+Equivalent presets exist for `neu_esc` (length 2024, 2200 steps) and `victsd`
+(length 1024, 3 epochs), together with masked focal without alpha and ViCTSD base
+CE. See [`configs/additional`](configs/additional) and the
+[revision notebook guide](notebooks/revisions/README.md).
+
+Alpha is computed independently for each task as `N / (K * class_count)`.
+`terminal_only` applies it to the token containing the last character of each
+label; `all_label_tokens` applies it to every token overlapping that label's
+value in the completion JSON. Other active tokens have weight 1. Prompt tokens
+have no loss when masking is enabled. The final loss is the mean over active
+shifted target tokens, not a mean divided by the sum of alpha weights.
+
+The switches `use_masking`, `use_class_alpha`, and `use_focal_loss` are independent.
+CE uses gamma 0; focal computes its modulation from CE before multiplying by
+alpha. Leaving `use_class_alpha` unspecified preserves the old configuration
+default (enabled when focal is enabled). Token IDs alone are never used to
+decide a label's class weight.
+
+The completion collator retains TRL's reference masking behavior, including
+ignoring EOS when EOS is also the padding ID. The explicit base CE collator keeps
+genuine EOS tokens. Terminal-versus-all alpha runs share one masking policy;
+base-versus-masking runs also differ in EOS supervision.
 
 ## Reproducing configurations
 

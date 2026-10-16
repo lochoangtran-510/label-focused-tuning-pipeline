@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Generate the exact public reproduction preset matrix."""
+"""Generate historical paper presets and explicitly opt-in revised runs.
+
+The original matrix retains its ranks and three-epoch schedule. Additional
+experiments use a separate protocol/path and are never swept by default.
+"""
 
 from __future__ import annotations
 
@@ -22,6 +26,8 @@ COMMON = {
     "gradient_accumulation": 4,
     "max_length": 1024,
     "focal_gamma": 2.0,
+    "alpha_scope": "terminal_only",
+    "protocol": "paper",
     "seed": 42,
 }
 
@@ -60,6 +66,7 @@ def main() -> None:
                 lora_rank=rank,
                 use_masking=masking,
                 use_focal_loss=focal,
+                use_class_alpha=focal,
             )
 
     for dataset in ("neu_esc", "uit_vsfc"):
@@ -74,6 +81,7 @@ def main() -> None:
                     lora_rank=rank,
                     use_masking=masking,
                     use_focal_loss=focal,
+                    use_class_alpha=focal,
                 )
 
     for sentiment_rank, topic_rank in (
@@ -88,7 +96,49 @@ def main() -> None:
             topic_lora_rank=topic_rank,
             use_masking=True,
             use_focal_loss=True,
+            use_class_alpha=True,
         )
+
+    # Corrected notebook protocols are separate from the paper's preset matrix.
+    # In particular, recent NEU notebooks use r=8 / len=2024 / max_steps=2200;
+    # the historical NEU presets above remain len=1024 / three epochs.
+    for dataset in ("neu_esc", "uit_vsfc", "victsd"):
+        max_length = 2024 if dataset == "neu_esc" else 1024
+        revised = {
+            "dataset": dataset,
+            "architecture": "joint",
+            "lora_rank": 8,
+            "protocol": "revision",
+            "max_length": max_length,
+            "max_steps": 2200 if dataset == "neu_esc" else -1,
+            "use_masking": True,
+        }
+        for scope in ("terminal_only", "all_label_tokens"):
+            write(
+                f"additional/{dataset}_mask_alpha_ce_{scope}_r8_len{max_length}.yaml",
+                **revised,
+                use_focal_loss=False,
+                focal_gamma=0.0,
+                use_class_alpha=True,
+                alpha_scope=scope,
+            )
+        write(
+            f"additional/{dataset}_mask_focal_no_alpha_r8_len{max_length}.yaml",
+            **revised,
+            use_focal_loss=True,
+            use_class_alpha=False,
+        )
+    write(
+        "additional/victsd_base_ce_r8_len1024.yaml",
+        dataset="victsd",
+        architecture="joint",
+        lora_rank=8,
+        protocol="revision",
+        use_masking=False,
+        use_focal_loss=False,
+        focal_gamma=0.0,
+        use_class_alpha=False,
+    )
 
     print(f"Generated {len(list(CONFIG_ROOT.rglob('*.yaml')))} presets")
 

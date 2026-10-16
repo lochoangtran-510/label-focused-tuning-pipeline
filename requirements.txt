@@ -1,5 +1,5 @@
 accelerate==0.29.3
-datasets>=2.19,<3
+datasets==2.21.0
 huggingface-hub>=0.23
 matplotlib>=3.8
 nbformat>=5.10
@@ -10,5 +10,5 @@ peft==0.10.0
 scikit-learn>=1.4
 tensorboard>=2.16
 torch>=2.2
-transformers==4.40.0
+transformers==4.46.3
 trl==0.8.6

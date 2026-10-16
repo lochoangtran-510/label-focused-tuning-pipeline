@@ -10,9 +10,12 @@ experiment:
   gradient_accumulation: 4
   max_length: 1024
   focal_gamma: 2.0
+  alpha_scope: "terminal_only"
+  protocol: "paper"
   seed: 42
   dataset: "uit_vsfc"
   architecture: "joint"
   lora_rank: 16
   use_masking: true
   use_focal_loss: true
+  use_class_alpha: true

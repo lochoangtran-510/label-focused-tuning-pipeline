@@ -4,7 +4,9 @@ This file distinguishes reusable implementation capabilities from experiments
 that were actually reported. Do not interpret support for a configuration as a
 claim that it was evaluated in the article.
 
-All public presets use `epochs: 3` and `max_steps: -1`.
+Historical paper presets use `epochs: 3` and `max_steps: -1`. Current corrected
+source is not a claim that the archived paper results have been rerun; the
+historical metrics and released adapters remain unchanged.
 
 ## Main comparison
 
@@ -54,3 +56,32 @@ There is no standalone Focal-only row in Table 6.
 For Table 9, every Dual configuration is evaluated on all 6,613 NEU-ESC test
 samples. Three samples per configuration require at least one task-specific
 fallback; no row is removed from metric computation.
+
+## New revision experiments (2026-10-16)
+
+These opt-in configurations are separate from the reported tables above. No new
+scores are included in this source update.
+
+| Dataset | Rank | Maximum length | Schedule | Added controls |
+|---|---:|---:|---|---|
+| UIT-VSFC | 8 | 1024 | 3 epochs | Masked CE + alpha (terminal/all); masked focal without alpha |
+| NEU-ESC | 8 | 2024 | 2200 steps | Masked CE + alpha (terminal/all); masked focal without alpha |
+| ViCTSD | 8 | 1024 | 3 epochs | Base CE; masked CE + alpha (terminal/all); masked focal without alpha |
+
+Run presets from `configs/additional/`. Standalone Colab notebooks and their
+data-path instructions are in [`notebooks/revisions`](notebooks/revisions/README.md).
+The NEU-ESC revision uses `protocol: revision`; it must not be mixed with the
+historical r=32, length-1024 paper ablation.
+
+For the terminal-versus-all comparison, hold the seed, model, train/validation
+splits, length filter, prompt, optimizer, and checkpoint-selection rule constant.
+The reference seed is 42. Alpha comes only from the retained training rows,
+separately per task. Validation selects checkpoints within a run; test results
+must not be used to choose the alpha scope. Report single-seed findings as such.
+
+Changing alpha scope changes how many label subtokens receive the class weight;
+it does not change the completion mask or the loss denominator. In both scopes,
+unweighted completion tokens (including JSON syntax) still contribute CE. Base
+CE also includes the prompt, and ignores only padding. Current source rejects
+truncated validation responses, ambiguous label spans, and existing output runs
+rather than silently changing the experiment.
