@@ -30,3 +30,14 @@ reproduction or performance claim can be made.
   actual experiment setting reported by the author. Update revision configs,
   notebook guidance, and the Colab quickstart consistently. Historical paper
   presets retain their three-epoch schedules.
+
+## 2026-10-16 — evaluate invalid predictions without majority fallback
+
+- Remove majority-label imputation from current prediction and evaluation on
+  NEU-ESC, UIT-VSFC, and ViCTSD. Preserve every row; record an invalid task
+  prediction as `PARSE_ERROR` and count it as wrong against fixed task labels.
+- Retain `*_corrected` output names for normalization compatibility only.
+  The NEU validation helper keeps its lenient JSON extraction and now uses the
+  same no-fallback scoring policy; ViCTSD's strict sentinel evaluator is retained.
+- Preserve all archived reports, scores, and historical fallback counts. This
+  code change does not verify new invalid-output counts or recompute metrics.

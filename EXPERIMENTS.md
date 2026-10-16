@@ -19,12 +19,14 @@ In the NEU-ESC main comparison, Dual + Pipeline uses the asymmetric
 Sentiment/Topic rank configuration `r=16/64`. The complete Dual rank analysis
 remains listed separately in Table 9.
 
-The zero-shot Vistral baseline is reproduced through `scripts/predict.py` with
+The zero-shot Vistral baseline can be run through `scripts/predict.py` with
 `--architecture zero_shot`; it uses the dataset-specific two-task instruction
 without a one-shot exemplar and does not load a LoRA adapter.
-Task-specific majority fallback retains the complete official test split; the
-paper reports fallback for 15/6,613 NEU-ESC, 15/1,000 ViCTSD, and 18/3,166
-UIT-VSFC zero-shot samples.
+The archived paper reports used task-specific majority fallback while retaining
+the complete official test split: 15/6,613 NEU-ESC, 15/1,000 ViCTSD, and
+18/3,166 UIT-VSFC zero-shot samples. These are historical archive counts, not
+measurements from the current no-fallback code. The retained reports and scores
+have not been changed or recomputed.
 
 ## Joint ablation (Table 6)
 
@@ -53,9 +55,25 @@ There is no standalone Focal-only row in Table 6.
   configurations.
 - Detailed error analysis and confusion matrices: NEU-ESC at r=32.
 
-For Table 9, every Dual configuration is evaluated on all 6,613 NEU-ESC test
-samples. Three samples per configuration require at least one task-specific
-fallback; no row is removed from metric computation.
+For the archived Table 9 reports, every Dual configuration was evaluated on all
+6,613 NEU-ESC test samples. Those reports record at least one task-specific
+fallback on three samples per configuration; no row was removed from metric
+computation. This describes the historical evaluation, not the current policy.
+
+## Current prediction and evaluation policy
+
+For all three datasets, current code keeps every evaluation row and uses no
+majority-label fallback. Invalid task predictions are recorded as `PARSE_ERROR`
+and counted as wrong; a valid prediction for the other task remains valid.
+Macro-F1 and weighted F1 use each task's fixed dataset label set, with no extra
+target class for the sentinel. Compatibility names ending in `*_corrected`
+refer to normalized scoring values, without class imputation.
+
+The NEU validation helper follows this no-fallback scoring policy while keeping
+its existing lenient JSON extraction. The ViCTSD revision evaluator keeps its
+existing strict JSON parser. Compare runs using the same parser and scoring
+policy. This update does not infer new invalid-output counts or regenerate any
+archived paper metrics.
 
 ## New revision experiments (2026-10-16)
 

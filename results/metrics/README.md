@@ -5,6 +5,11 @@ They contain aggregate metrics and classification reports, not row-level model
 predictions. Dataset and method names use the same identifiers as the public
 configs. For Dual Adapter reports, ranks are ordered as Sentiment/Topic.
 
+These are archived reports under their original evaluation policies. Their
+fallback counts and scores remain unchanged. Current prediction/evaluation code
+uses no majority-label fallback: invalid task predictions count as wrong on the
+complete split. The reports below have not been recomputed under that policy.
+
 ```text
 metrics/<dataset>/
 ├── zero_shot/report.txt

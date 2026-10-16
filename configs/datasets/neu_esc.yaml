@@ -30,4 +30,4 @@ one_shot_text: "bạn ơi ngành này có phù hợp với tuổi trung niên đ
 default_rank: 32
 max_length: 1024
 epochs: 3
-majority_policy: calculate_from_training_split
+invalid_prediction_policy: count_as_error

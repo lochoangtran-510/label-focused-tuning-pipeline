@@ -9,12 +9,13 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import pandas as pd
-from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix
+from sklearn.metrics import ConfusionMatrixDisplay
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from label_focused.datasets import DATASET_REGISTRY
+from label_focused.evaluation import confusion_matrix_full_test
 
 
 def main() -> None:
@@ -42,10 +43,10 @@ def main() -> None:
         (axes[0], "sentiment", spec.sentiment_labels),
         (axes[1], "topic", spec.topic_labels),
     ):
-        matrix = confusion_matrix(
-            frame[f"true_{task}"], frame[f"pred_{task}_corrected"], labels=labels
+        matrix, display_labels = confusion_matrix_full_test(
+            frame[f"true_{task}"], frame[f"pred_{task}_corrected"], labels
         )
-        ConfusionMatrixDisplay(matrix, display_labels=labels).plot(
+        ConfusionMatrixDisplay(matrix, display_labels=display_labels).plot(
             ax=axis, colorbar=False, cmap="Blues", values_format="d"
         )
         axis.set_title(task.title())

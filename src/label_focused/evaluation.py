@@ -1,4 +1,4 @@
-"""Full-test correction and reproducible classification metrics."""
+"""Full-test metrics: invalid predictions remain errors, without imputation."""
 
 from __future__ import annotations
 
@@ -6,13 +6,38 @@ from typing import Any, Iterable
 
 import pandas as pd
 
-from sklearn.metrics import accuracy_score, classification_report, f1_score
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, f1_score
+
+
+INVALID_LABEL = "PARSE_ERROR"
+
+
+def _metric_inputs(truth, predictions, labels):
+    truth, predictions, labels = list(truth), list(predictions), list(labels)
+    if not truth or len(truth) != len(predictions):
+        raise ValueError("Truth and predictions must have the same non-zero length")
+    if (
+        not labels
+        or any(not isinstance(label, str) or not label for label in labels)
+        or len(set(labels)) != len(labels)
+        or INVALID_LABEL in labels
+    ):
+        raise ValueError("Business labels must be unique non-empty strings, excluding PARSE_ERROR")
+    allowed = set(labels)
+    if any(not isinstance(value, str) or value not in allowed for value in truth):
+        raise ValueError("Ground-truth labels must belong to the business label set")
+    if any(
+        not isinstance(value, str) or value not in allowed | {INVALID_LABEL}
+        for value in predictions
+    ):
+        raise ValueError("Predictions must be business labels or PARSE_ERROR")
+    return truth, predictions, labels
 
 
 def classification_metrics(
     truth: Iterable[str], predictions: Iterable[str], labels: list[str] | tuple[str, ...]
 ) -> dict:
-    truth, predictions = list(truth), list(predictions)
+    truth, predictions, labels = _metric_inputs(truth, predictions, labels)
     return {
         "n_samples": len(truth),
         "accuracy": accuracy_score(truth, predictions),
@@ -26,65 +51,48 @@ def classification_metrics(
     }
 
 
-def majority_labels(train_frame: pd.DataFrame, spec: Any) -> tuple[str, str]:
-    """Calculate fallbacks strictly from the training split."""
-    from .prompting import labels_from_row
+def prepare_full_test_predictions(frame: pd.DataFrame, spec: Any) -> pd.DataFrame:
+    """Normalize each task independently and preserve every prediction row.
 
-    mapped = [labels_from_row(row, spec) for _, row in train_frame.iterrows()]
-    if not mapped:
-        raise ValueError("Cannot determine majority labels from an empty training split")
-    sentiments, topics = zip(*mapped)
-    return (
-        pd.Series(sentiments).mode(dropna=True).iloc[0],
-        pd.Series(topics).mode(dropna=True).iloc[0],
-    )
-
-
-def correct_full_test_predictions(
-    frame: pd.DataFrame,
-    spec: Any,
-    majority_sentiment: str,
-    majority_topic: str,
-) -> pd.DataFrame:
-    """Replace invalid labels independently; never remove test rows."""
+    Empty, missing, or out-of-set predictions become ``PARSE_ERROR`` and count
+    as wrong. Existing case-insensitive canonicalization is retained. Original
+    values and raw-output columns remain available for auditing; when original
+    columns already exist, they take precedence over previously corrected data.
+    The ``*_corrected`` columns are compatibility aliases for the normalized
+    predictions and no longer mean majority-label replacement.
+    """
     required = {"pred_sentiment", "pred_topic"}
     missing = required.difference(frame.columns)
     if missing:
         raise ValueError(f"Prediction frame is missing columns: {sorted(missing)}")
 
     result = frame.copy()
-    result["pred_sentiment_original"] = (
-        result["pred_sentiment"].fillna("").astype(str).str.strip()
-    )
-    result["pred_topic_original"] = (
-        result["pred_topic"].fillna("").astype(str).str.strip()
-    )
-    sentiment_lookup = {label.casefold(): label for label in spec.sentiment_labels}
-    topic_lookup = {label.casefold(): label for label in spec.topic_labels}
-    canonical_sentiment = result["pred_sentiment_original"].str.casefold().map(
-        sentiment_lookup
-    )
-    canonical_topic = result["pred_topic_original"].str.casefold().map(topic_lookup)
-    result["sentiment_invalid"] = canonical_sentiment.isna()
-    result["topic_invalid"] = canonical_topic.isna()
+    for task, labels in (
+        ("sentiment", spec.sentiment_labels), ("topic", spec.topic_labels)
+    ):
+        original = f"pred_{task}_original"
+        if original not in result:
+            result[original] = result[f"pred_{task}"].copy()
+        lookup = {label.casefold(): label for label in labels}
+        values = result[original].fillna("").astype(str).str.strip()
+        canonical = values.str.casefold().map(lookup)
+        result[f"{task}_invalid"] = canonical.isna()
+        normalized = canonical.fillna(INVALID_LABEL)
+        result[f"pred_{task}"] = normalized
+        result[f"pred_{task}_corrected"] = normalized
     result["any_invalid"] = result["sentiment_invalid"] | result["topic_invalid"]
-    result["pred_sentiment_corrected"] = canonical_sentiment.fillna(
-        majority_sentiment
-    )
-    result["pred_topic_corrected"] = canonical_topic.fillna(majority_topic)
     if len(result) != len(frame):
-        raise AssertionError("Full-test correction changed the number of rows")
+        raise AssertionError("Prediction normalization changed the number of test rows")
     return result
 
 
-def evaluate_corrected_predictions(frame: pd.DataFrame, spec: Any) -> dict[str, Any]:
-    required = {
-        "true_sentiment", "true_topic",
-        "pred_sentiment_corrected", "pred_topic_corrected",
-    }
+def evaluate_full_test_predictions(frame: pd.DataFrame, spec: Any) -> dict[str, Any]:
+    """Score all rows, keeping PARSE_ERROR outside the business-class macro mean."""
+    required = {"true_sentiment", "true_topic"}
     missing = required.difference(frame.columns)
     if missing:
-        raise ValueError(f"Corrected frame is missing columns: {sorted(missing)}")
+        raise ValueError(f"Prediction frame is missing columns: {sorted(missing)}")
+    frame = prepare_full_test_predictions(frame, spec)
     return {
         "test_size": len(frame),
         "invalid_counts": {
@@ -94,12 +102,29 @@ def evaluate_corrected_predictions(frame: pd.DataFrame, spec: Any) -> dict[str, 
         },
         "sentiment": classification_metrics(
             frame["true_sentiment"],
-            frame["pred_sentiment_corrected"],
+            frame["pred_sentiment"],
             spec.sentiment_labels,
         ),
         "topic": classification_metrics(
             frame["true_topic"],
-            frame["pred_topic_corrected"],
+            frame["pred_topic"],
             spec.topic_labels,
         ),
     }
+
+
+def confusion_matrix_full_test(
+    truth: Iterable[str], predictions: Iterable[str], labels: list[str] | tuple[str, ...]
+):
+    """Return a confusion matrix and axes that account for every test sample.
+
+    Business classes retain their configured order. A PARSE_ERROR prediction
+    column (and matching empty truth row) is included only when needed, so
+    plotting with a fixed business label list cannot silently drop failures.
+    """
+    truth, predictions, labels = _metric_inputs(truth, predictions, labels)
+    display_labels = labels + ([INVALID_LABEL] if INVALID_LABEL in predictions else [])
+    matrix = confusion_matrix(truth, predictions, labels=display_labels)
+    if int(matrix.sum()) != len(truth):
+        raise AssertionError("Confusion matrix omitted test samples")
+    return matrix, display_labels

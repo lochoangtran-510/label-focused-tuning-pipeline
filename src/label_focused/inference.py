@@ -11,7 +11,7 @@ from typing import Any
 import pandas as pd
 
 from .datasets import DATASET_REGISTRY
-from .evaluation import majority_labels, correct_full_test_predictions
+from .evaluation import prepare_full_test_predictions
 from .prompting import (
     build_inference_prompt,
     build_single_task_prompt,
@@ -103,10 +103,18 @@ def _token_counts(outputs: list[Any]) -> tuple[int, int]:
 
 def run_inference(
     test_frame: pd.DataFrame,
-    train_frame: pd.DataFrame,
-    config: InferenceConfig,
+    train_frame: pd.DataFrame | InferenceConfig | None = None,
+    config: InferenceConfig | None = None,
 ) -> tuple[pd.DataFrame, dict[str, Any]]:
-    """Generate, correct, and retain all test predictions."""
+    """Generate all test rows; invalid labels remain PARSE_ERROR and count as errors.
+
+    The legacy train_frame argument is accepted but never read. New callers may
+    pass config by keyword or as the second argument without training data.
+    """
+    if isinstance(train_frame, InferenceConfig) and config is None:
+        config = train_frame
+    if config is None:
+        raise TypeError("run_inference requires an InferenceConfig")
     _validate_config(config)
     from transformers import AutoTokenizer
     from vllm import LLM, SamplingParams
@@ -165,6 +173,8 @@ def run_inference(
             if request is not None:
                 generate_kwargs["lora_request"] = request
             outputs = llm.generate(joint_prompts, sampling, **generate_kwargs)
+            if len(outputs) != len(texts):
+                raise ValueError("Generation did not return every test row")
             all_outputs.extend(outputs)
             raw_joint = [output.outputs[0].text for output in outputs]
             parsed = [
@@ -190,6 +200,8 @@ def run_inference(
                 lora_request=LoRARequest("topic", 2, str(config.topic_adapter)),
                 use_tqdm=True,
             )
+            if len(sentiment_outputs) != len(texts) or len(topic_outputs) != len(texts):
+                raise ValueError("Dual generation did not return every test row for both tasks")
             all_outputs.extend(sentiment_outputs)
             all_outputs.extend(topic_outputs)
             raw_sentiment = [output.outputs[0].text for output in sentiment_outputs]
@@ -214,10 +226,7 @@ def run_inference(
             "raw_topic_output": raw_topic,
         }
     )
-    majority_sentiment, majority_topic = majority_labels(train_frame, spec)
-    corrected = correct_full_test_predictions(
-        predictions, spec, majority_sentiment, majority_topic
-    )
+    corrected = prepare_full_test_predictions(predictions, spec)
     json_parse_error = (
         (corrected["pred_sentiment_original"] == "PARSE_ERROR")
         & (corrected["pred_topic_original"] == "PARSE_ERROR")
@@ -254,9 +263,12 @@ def run_inference(
             "dtype": "float16",
             "lora_enabled": uses_lora,
         },
-        "majority_fallback": {
-            "sentiment": majority_sentiment,
-            "topic": majority_topic,
+        "evaluation_policy": {
+            "fallback_enabled": False,
+            "fallback": "disabled",
+            "invalid_sentinel": "PARSE_ERROR",
+            "invalid_predictions": "count_as_errors",
+            "test_rows_removed": 0,
         },
         "invalid_counts": {
             "sentiment": int(corrected["sentiment_invalid"].sum()),

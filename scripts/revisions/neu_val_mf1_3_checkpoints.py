@@ -7,6 +7,7 @@ CHECKPOINT_DIRS = [
 ]
 BATCH_SIZE_VAL = 4
 MAX_NEW_TOKENS_VAL = 64
+INVALID_LABEL = "PARSE_ERROR"
 
 import gc, json, time, uuid
 from pathlib import Path
@@ -19,7 +20,7 @@ from sklearn.metrics import f1_score
 
 # Dùng đúng tokenizer, prompt, nhãn và đường dẫn đã có trong notebook huấn luyện.
 _required = ["tokenizer", "SYSTEM_PROMPT", "FEW_SHOT_EXAMPLE", "sentiment_map",
-             "topic_map", "SENTIMENT_LABELS", "TOPIC_LABELS", "TRAIN_CSV_PATH", "VAL_CSV_PATH"]
+             "topic_map", "SENTIMENT_LABELS", "TOPIC_LABELS", "VAL_CSV_PATH"]
 _missing = [name for name in _required if name not in globals()]
 if _missing:
     raise RuntimeError(f"Thiếu {_missing}. Chạy ô này trong cùng phiên Python sau huấn luyện NEU.")
@@ -65,6 +66,8 @@ def _build_val_prompt(text):
     return tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
 
 def _parse_val_output(raw):
+    if not isinstance(raw, str):
+        return "", ""
     try:
         start, end = raw.rfind("{"), raw.rfind("}") + 1
         obj = json.loads(raw[start:end]) if start >= 0 and end > start else {}
@@ -74,21 +77,28 @@ def _parse_val_output(raw):
     except (ValueError, TypeError):
         return "", ""
 
+def _score_val_outputs(raw_outputs, true_s, true_t):
+    """Giữ đủ mẫu; dự đoán không hợp lệ là lỗi, không thay bằng nhãn lớp."""
+    if not true_s or len(raw_outputs) != len(true_s) or len(true_s) != len(true_t):
+        raise ValueError("Số dự đoán phải khớp toàn bộ validation không rỗng.")
+    parsed = [_parse_val_output(raw) for raw in raw_outputs]
+    invalid_s = [sent not in SENTIMENT_LABELS for sent, topic in parsed]
+    invalid_t = [topic not in TOPIC_LABELS for sent, topic in parsed]
+    pred_s = [sent if not bad else INVALID_LABEL for (sent, topic), bad in zip(parsed, invalid_s)]
+    pred_t = [topic if not bad else INVALID_LABEL for (sent, topic), bad in zip(parsed, invalid_t)]
+    mf1_s = float(f1_score(true_s, pred_s, labels=SENTIMENT_LABELS, average="macro", zero_division=0))
+    mf1_t = float(f1_score(true_t, pred_t, labels=TOPIC_LABELS, average="macro", zero_division=0))
+    return parsed, invalid_s, invalid_t, pred_s, pred_t, mf1_s, mf1_t
+
 _val_df = pd.read_csv(VAL_CSV_PATH)
-_train_df_for_fallback = pd.read_csv(TRAIN_CSV_PATH)
-for _name, _df in [("validation", _val_df), ("train", _train_df_for_fallback)]:
-    _needed = {"sentiment", "classification"} | ({"text"} if _name == "validation" else set())
-    if _df.empty or not _needed.issubset(_df.columns):
-        raise ValueError(f"CSV {_name} rỗng hoặc thiếu cột {_needed - set(_df.columns)}.")
+_needed = {"sentiment", "classification", "text"}
+if _val_df.empty or not _needed.issubset(_val_df.columns):
+    raise ValueError(f"CSV validation rỗng hoặc thiếu cột {_needed - set(_val_df.columns)}.")
 if _val_df["text"].isna().any():
     raise ValueError("Validation có text thiếu; dừng để không bỏ mẫu hoặc sinh từ dữ liệu thiếu.")
 
 _true_s = _map_gold(_val_df["sentiment"], sentiment_map, SENTIMENT_LABELS, "Sentiment")
 _true_t = _map_gold(_val_df["classification"], topic_map, TOPIC_LABELS, "Topic")
-_train_s = _map_gold(_train_df_for_fallback["sentiment"], sentiment_map, SENTIMENT_LABELS, "train Sentiment")
-_train_t = _map_gold(_train_df_for_fallback["classification"], topic_map, TOPIC_LABELS, "train Topic")
-_majority_s = pd.Series(_train_s).mode().iloc[0]
-_majority_t = pd.Series(_train_t).mode().iloc[0]
 _prompts = [_build_val_prompt(text) for text in _val_df["text"].astype(str)]
 _lengths = [len(ids) for ids in tokenizer(_prompts, add_special_tokens=False, truncation=False)["input_ids"]]
 _context_limit = getattr(_val_model.config, "max_position_embeddings", None)
@@ -104,7 +114,7 @@ _old_cache = _val_model.config.use_cache
 _old_grad_flags = {name: param.requires_grad for name, param in _val_model.named_parameters()}
 _device = _val_model.get_input_embeddings().weight.device
 _val_results = []
-print(f"Validation: {len(_val_df)} mẫu | fallback từ train: {_majority_s} / {_majority_t}")
+print(f"Validation: {len(_val_df)} mẫu | đầu ra không hợp lệ được tính sai, giữ đủ mẫu.")
 print("Chọn checkpoint theo (Sentiment Macro F1 + Topic Macro F1) / 2.")
 
 try:
@@ -151,13 +161,9 @@ try:
 
         if len(_raw_outputs) != len(_val_df):
             raise RuntimeError("Số dự đoán không khớp toàn bộ validation.")
-        _parsed = [_parse_val_output(raw) for raw in _raw_outputs]
-        _invalid_s = [sent not in SENTIMENT_LABELS for sent, topic in _parsed]
-        _invalid_t = [topic not in TOPIC_LABELS for sent, topic in _parsed]
-        _pred_s = [sent if not bad else _majority_s for (sent, topic), bad in zip(_parsed, _invalid_s)]
-        _pred_t = [topic if not bad else _majority_t for (sent, topic), bad in zip(_parsed, _invalid_t)]
-        _mf1_s = float(f1_score(_true_s, _pred_s, labels=SENTIMENT_LABELS, average="macro", zero_division=0))
-        _mf1_t = float(f1_score(_true_t, _pred_t, labels=TOPIC_LABELS, average="macro", zero_division=0))
+        (_parsed, _invalid_s, _invalid_t, _pred_s, _pred_t, _mf1_s, _mf1_t) = _score_val_outputs(
+            _raw_outputs, _true_s, _true_t,
+        )
         _val_results.append({
             "checkpoint": _checkpoint, "n_val": len(_val_df),
             "sentiment_mf1": _mf1_s, "topic_mf1": _mf1_t,
@@ -194,8 +200,9 @@ VAL_CHECKPOINT_RESULTS.to_csv(_save_dir / "val_ranking.csv", index=False, encodi
 with open(_save_dir / "selection.json", "w", encoding="utf-8") as _file:
     json.dump({"best_checkpoint": BEST_VAL_CHECKPOINT,
                "criterion": "mean_of_sentiment_and_topic_validation_macro_f1",
-               "validation_csv": str(VAL_CSV_PATH), "train_csv_for_fallback": str(TRAIN_CSV_PATH),
-               "majority_sentiment": _majority_s, "majority_topic": _majority_t,
+               "validation_csv": str(VAL_CSV_PATH),
+               "invalid_prediction_policy": "count_as_error", "invalid_label": INVALID_LABEL,
+               "validation_rows_removed": 0,
                "max_new_tokens": MAX_NEW_TOKENS_VAL, "n_val": len(_val_df),
                "results": VAL_CHECKPOINT_RESULTS.to_dict(orient="records")},
               _file, ensure_ascii=False, indent=2)

@@ -32,4 +32,4 @@ one_shot_text: "Biden dẫn Trump 13 điểm [SEP] Cuộc bầu cử ở Mỹ l�
 default_rank: 8
 max_length: 1024
 epochs: 3
-majority_policy: calculate_from_training_split
+invalid_prediction_policy: count_as_error

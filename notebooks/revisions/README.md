@@ -60,13 +60,21 @@ training checkpoints.
   [script](../../scripts/revisions/victsd_test_ablation_fixed.py): evaluate one
   selected adapter on the complete test split with a strict JSON parser. Invalid
   task predictions remain sentinel errors in the metrics; valid fields are
-  preserved when another field is invalid. Edit the adapter and CSV paths. This
-  revision evaluator differs from the shared CLI's train-majority fallback
-  policy; label its results separately.
+  preserved when another field is invalid. Edit the adapter and CSV paths.
+  The shared CLI now also counts invalid predictions as wrong without majority
+  fallback. The revision evaluator retains its strict JSON parser; keep parser
+  and scoring settings consistent when comparing results.
 - [NEU three-checkpoint validation helper](../../scripts/revisions/neu_val_mf1_3_checkpoints.py):
   run inside the NEU training notebook session to compare three adapters on
-  validation macro-F1, using train-majority fallback. It depends on that
-  session's variables and is not a standalone test-set evaluator.
+  validation macro-F1. Invalid task predictions remain `PARSE_ERROR` and count
+  as wrong, with no majority fallback. Its lenient JSON extraction is unchanged.
+  It depends on that session's variables and is not a standalone test-set evaluator.
+
+All current evaluation entry points preserve the complete split and apply no
+class imputation. Existing `*_corrected` output names in shared code denote
+normalized scoring values only. Historical reports remain unchanged, including
+any recorded fallback counts; no new counts or scores have been inferred from
+this source change.
 
 Standalone notebooks preserve their dataset-specific prompts and training
 protocols. Shared CLI presets use the repository's shared prompt builders. Treat

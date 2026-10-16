@@ -111,3 +111,34 @@ def test_victsd_revision_scorer_retains_invalid_field_as_error():
     assert duplicate["pred_topic"] == module.INVALID_LABEL
     # Fixed-class F1 and confusion counts must include the failed generations.
     module.self_check()
+
+
+def test_neu_validation_scores_invalid_outputs_as_errors_without_train_labels():
+    from sklearn.metrics import f1_score
+
+    path = ROOT / "scripts/revisions/neu_val_mf1_3_checkpoints.py"
+    tree = ast.parse(path.read_text())
+    functions = [node for node in tree.body if isinstance(node, ast.FunctionDef)
+                 and node.name in {"_parse_val_output", "_score_val_outputs"}]
+    namespace = {
+        "json": json, "f1_score": f1_score, "INVALID_LABEL": "PARSE_ERROR",
+        "SENTIMENT_LABELS": ["Neutral", "Positive", "Negative", "Toxic"],
+        "TOPIC_LABELS": ["Spam", "News", "Academic", "Other", "Service",
+                         "Jobs & Recruitment", "Personal Affairs", "Social Affairs",
+                         "Help & Share", "Club & Events"],
+    }
+    exec(compile(ast.Module(body=functions, type_ignores=[]), str(path), "exec"), namespace)
+    raw = ["invalid JSON", '{"Sentiment":"Neutral","Topic":null}',
+           '{"Sentiment":"Neutral","Topic":"News"}']
+    parsed, invalid_s, invalid_t, pred_s, pred_t, mf1_s, mf1_t = namespace["_score_val_outputs"](
+        raw, ["Neutral"] * 3, ["News"] * 3,
+    )
+    assert len(parsed) == len(raw)
+    assert invalid_s == [True, False, False]
+    assert invalid_t == [True, True, False]
+    assert pred_s == ["PARSE_ERROR", "Neutral", "Neutral"]
+    assert pred_t == ["PARSE_ERROR", "PARSE_ERROR", "News"]
+    assert mf1_s == pytest.approx(0.8 / 4)
+    assert mf1_t == pytest.approx(0.5 / 10)
+    with pytest.raises(ValueError, match="validation"):
+        namespace["_score_val_outputs"](raw[:1], ["Neutral"] * 3, ["News"] * 3)

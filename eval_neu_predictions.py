@@ -2,8 +2,8 @@
 """Backward-compatible entry point for full-test evaluation.
 
 The original Colab-specific implementation has moved to
-``scripts/evaluate.py``. Invalid predictions are replaced independently by
-training-split majority labels; no test samples are removed.
+``scripts/evaluate.py``. Invalid task predictions remain ``PARSE_ERROR`` and
+count as wrong; no labels are imputed and no test samples are removed.
 
 Example:
     python eval_neu_predictions.py \

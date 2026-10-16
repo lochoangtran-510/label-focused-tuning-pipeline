@@ -22,6 +22,11 @@ It supports CE + masking + alpha independently of focal loss, with either
 come from the length-filtered training split. Base CE includes prompt and
 response loss and ignores padding only.
 
+Current prediction and evaluation code uses **no majority-label fallback** on
+NEU-ESC, UIT-VSFC, or ViCTSD. Invalid task predictions become `PARSE_ERROR`, count
+as wrong, and remain in the complete evaluation split. Archived reports retain
+their original evaluation policy and counts.
+
 The corrected source and new revision notebooks have **not** been used to
 regenerate the paper's archived scores or checkpoints. Historical result files
 and the published Zenodo v1.0.0 snapshot remain unchanged. See
@@ -47,7 +52,7 @@ protocols and standalone Colab notebooks, including ViCTSD base CE.
 │   ├── losses.py                          # alpha-balanced focal loss
 │   ├── training.py                        # Joint/Dual LoRA training
 │   ├── inference.py                       # zero-shot/Joint/Dual vLLM
-│   └── evaluation.py                      # full-test metrics and fallback
+│   └── evaluation.py                      # full-test metrics; invalid = wrong
 ├── EXPERIMENTS.md                         # exact reported experiment scope
 ├── requirements.txt
 └── CITATION.cff
@@ -228,10 +233,10 @@ python scripts/predict.py \
 
 This command follows the zero-shot notebooks for deterministic decoding
 (`temperature=0`, up to 100 new tokens), validates the generated labels, and
-applies the training-split majority fallback independently to each task. For
-ViCTSD, the generated JSON keys are `Toxicity` and `Topic`; the saved prediction
+marks an invalid task prediction as `PARSE_ERROR` without assigning another
+class. For ViCTSD, the generated JSON keys are `Toxicity` and `Topic`; the saved prediction
 schema remains normalized to `sentiment` and `topic` so the shared evaluator can
-be used. To produce the notebook-equivalent metrics and confusion matrices:
+be used. To produce current full-test metrics and confusion matrices:
 
 ```bash
 python scripts/evaluate.py \
@@ -257,7 +262,7 @@ python scripts/predict.py \
   --output-dir outputs/neu_esc/dual_adapter/inference
 ```
 
-Evaluate a saved prediction file with the same full-test fallback policy:
+Evaluate a saved prediction file with the same full-test, no-fallback policy:
 
 ```bash
 python scripts/evaluate.py \
@@ -265,17 +270,26 @@ python scripts/evaluate.py \
   --predictions outputs/neu_esc/dual_adapter/inference/predictions.csv
 ```
 
-Malformed JSON, empty outputs, and labels outside the dataset label set are
-replaced **independently per task** by the majority class calculated from the
-training split. No test row is discarded. `predictions.csv` retains raw output,
-original parsed labels, invalid flags, and corrected labels for auditing.
+Malformed JSON, empty outputs, and labels outside the dataset label set produce
+`PARSE_ERROR` for each affected task. A valid task prediction is preserved when
+the other task is invalid. No predicted class is imputed, and no test row is
+discarded. Macro-F1 and weighted F1 use the dataset's fixed task label sets;
+`PARSE_ERROR` is an erroneous prediction, not an additional target class.
+
+`predictions.csv` retains raw output, original parsed labels, invalid flags,
+and normalized scoring labels for auditing. The existing `*_corrected` column
+names and `predictions_corrected.csv` filename are retained for compatibility:
+"corrected" means normalized for scoring, without majority-label replacement.
 
 Inference writes:
 
-- `predictions.csv`: every test sample and corrected predictions.
+- `predictions.csv`: every test sample, parsed predictions, and scoring labels.
 - `invalid_predictions.csv`: audit subset only; it is not the evaluation set.
 - `performance.json`: elapsed time, input/output throughput, samples/second,
-  parse-invalid counts, majority fallbacks, and peak GPU memory sampled by NVML.
+  parse-invalid counts, the no-fallback policy, and peak GPU memory sampled by NVML.
+
+The archived reports under `results/metrics/` retain their historical fallback
+counts and scores. They have not been regenerated under this current policy.
 
 Generate confusion matrices and the task-error distribution without rerunning
 the model:

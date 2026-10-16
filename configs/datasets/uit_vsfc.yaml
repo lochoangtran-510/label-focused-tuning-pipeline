@@ -15,4 +15,4 @@ one_shot_text: "giảng viên giảng dạy nhiệt tình , có đầy đủ cá
 default_rank: 8
 max_length: 1024
 epochs: 3
-majority_policy: calculate_from_training_split
+invalid_prediction_policy: count_as_error

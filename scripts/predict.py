@@ -53,7 +53,7 @@ def main() -> None:
         max_new_tokens=args.max_new_tokens,
         gpu_memory_utilization=args.gpu_memory_utilization,
     )
-    predictions, performance = run_inference(splits["test"], splits["train"], config)
+    predictions, performance = run_inference(splits["test"], config=config)
     prediction_path = output_dir / "predictions.csv"
     performance_path = output_dir / "performance.json"
     invalid_path = output_dir / "invalid_predictions.csv"

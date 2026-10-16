@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Evaluate all test rows using majority fallback for invalid predictions."""
+"""Evaluate every test row; invalid predictions count as errors without imputation."""
 
 from __future__ import annotations
 
@@ -16,9 +16,8 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from label_focused.datasets import DATASET_REGISTRY, load_splits
 from label_focused.evaluation import (
-    correct_full_test_predictions,
-    evaluate_corrected_predictions,
-    majority_labels,
+    prepare_full_test_predictions,
+    evaluate_full_test_predictions,
 )
 from label_focused.prompting import labels_from_row
 
@@ -47,7 +46,7 @@ def main() -> None:
     prediction_path = Path(args.predictions)
     output_dir = Path(args.output_dir) if args.output_dir else prediction_path.parent
     output_dir.mkdir(parents=True, exist_ok=True)
-    frame = pd.read_csv(prediction_path)
+    frame = pd.read_csv(prediction_path, keep_default_na=False)
     splits = load_splits(args.dataset, args.data_dir)
     spec = DATASET_REGISTRY[args.dataset]
     if len(frame) != len(splits["test"]):
@@ -58,28 +57,26 @@ def main() -> None:
     expected = [labels_from_row(row, spec) for _, row in splits["test"].iterrows()]
     expected_sentiment = [pair[0] for pair in expected]
     expected_topic = [pair[1] for pair in expected]
-    if "true_sentiment" not in frame or "true_topic" not in frame:
-        frame["true_sentiment"] = expected_sentiment
-        frame["true_topic"] = expected_topic
-    elif (
-        frame["true_sentiment"].astype(str).tolist() != expected_sentiment
-        or frame["true_topic"].astype(str).tolist() != expected_topic
-    ):
-        raise ValueError(
-            "Ground-truth labels or row order do not match the selected test split"
-        )
-    majority_sentiment, majority_topic = majority_labels(splits["train"], spec)
-    corrected = correct_full_test_predictions(
-        frame, spec, majority_sentiment, majority_topic
-    )
-    metrics = evaluate_corrected_predictions(corrected, spec)
-    metrics["fallback_policy"] = {
-        "source": "training split",
-        "sentiment": majority_sentiment,
-        "topic": majority_topic,
-        "applied_independently_per_task": True,
+    for column, truth in [("true_sentiment", expected_sentiment), ("true_topic", expected_topic)]:
+        if column not in frame:
+            frame[column] = truth
+        elif frame[column].astype(str).tolist() != truth:
+            raise ValueError("Ground-truth labels or row order do not match the selected test split")
+    if "text" in frame and frame["text"].astype(str).tolist() != splits["test"][spec.text_column].astype(str).tolist():
+        raise ValueError("Prediction text or row order does not match the selected test split")
+    # Preparation uses original raw prediction columns when present, including
+    # files produced by the former imputation policy. Never score old replacements.
+    corrected = prepare_full_test_predictions(frame, spec)
+    metrics = evaluate_full_test_predictions(corrected, spec)
+    metrics["evaluation_policy"] = {
+        "fallback_enabled": False,
+        "fallback": "disabled",
+        "invalid_sentinel": "PARSE_ERROR",
+        "invalid_predictions": "count_as_errors",
         "test_rows_removed": 0,
     }
+    # Historical filename retained for consumers; values are normalization-only,
+    # with invalid labels represented by PARSE_ERROR and no label imputation.
 
     corrected.to_csv(
         output_dir / "predictions_corrected.csv", index=False, encoding="utf-8-sig"

@@ -38,7 +38,11 @@ def build_notebook() -> dict:
 Colab quickstart for **NEU-ESC**, **UIT-VSFC**, and **ViCTSD**. This is a thin
 interface to the Linux CLI. Corrected task-aware alpha assignment defaults to
 the terminal token; weighting every label token is a separate opt-in experiment.
-Historical paper results are archived results, not metrics reproduced by this update."""),
+Historical paper results are archived results, not metrics reproduced by this update.
+
+Current prediction/evaluation keeps every row and uses no majority-label fallback.
+Invalid task predictions remain `PARSE_ERROR` and count as wrong. Existing
+`*_corrected` output names denote normalization for scoring, without class imputation."""),
             cell("markdown", """## 1. Installation
 
 Use a GPU runtime for training. Training dependencies pin Transformers 4.46.3
