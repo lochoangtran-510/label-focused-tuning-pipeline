@@ -23,3 +23,10 @@ This update does not modify archived result files, checkpoint checksums, the
 paper's historical experiment matrix, citation metadata, or the published Zenodo
 v1.0.0 record. The corrected source requires new training runs before any new
 reproduction or performance claim can be made.
+
+## 2026-10-16 — NEU revision step limit correction
+
+- Set the opt-in NEU-ESC revision schedule to `max_steps=2800` to match the
+  actual experiment setting reported by the author. Update revision configs,
+  notebook guidance, and the Colab quickstart consistently. Historical paper
+  presets retain their three-epoch schedules.

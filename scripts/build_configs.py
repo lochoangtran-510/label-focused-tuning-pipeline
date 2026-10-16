@@ -100,7 +100,7 @@ def main() -> None:
         )
 
     # Corrected notebook protocols are separate from the paper's preset matrix.
-    # In particular, recent NEU notebooks use r=8 / len=2024 / max_steps=2200;
+    # In particular, recent NEU notebooks use r=8 / len=2024 / max_steps=2800;
     # the historical NEU presets above remain len=1024 / three epochs.
     for dataset in ("neu_esc", "uit_vsfc", "victsd"):
         max_length = 2024 if dataset == "neu_esc" else 1024
@@ -110,7 +110,7 @@ def main() -> None:
             "lora_rank": 8,
             "protocol": "revision",
             "max_length": max_length,
-            "max_steps": 2200 if dataset == "neu_esc" else -1,
+            "max_steps": 2800 if dataset == "neu_esc" else -1,
             "use_masking": True,
         }
         for scope in ("terminal_only", "all_label_tokens"):

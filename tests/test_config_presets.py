@@ -79,7 +79,7 @@ def test_additional_runs_separate_scope_from_focal_and_keep_recent_neu_schedule(
             assert not config["use_focal_loss"] and config["focal_gamma"] == 0
             assert config["alpha_scope"] == scope
             assert config["max_length"] == length
-            assert config["max_steps"] == (2200 if dataset == "neu_esc" else -1)
+            assert config["max_steps"] == (2800 if dataset == "neu_esc" else -1)
         focal = read_experiment(ROOT / "configs" / "additional" / (
             f"{dataset}_mask_focal_no_alpha_r8_len{length}.yaml"
         ))
@@ -129,4 +129,4 @@ def test_quickstart_is_clean_deterministic_and_has_explicit_alpha_choices():
     assert 'ALPHA_SCOPE = "terminal_only"' in source
     assert "all_label_tokens" in source and "use_class_alpha" in source
     assert "RUN_FULL_TRAINING = False" in source
-    assert "2200" in source and "Historical paper results are archived" in source
+    assert "2800" in source and "Historical paper results are archived" in source

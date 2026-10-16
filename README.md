@@ -104,7 +104,7 @@ No Hugging Face token is stored in the source.
 The historical paper presets train for **3 complete epochs**. They set
 `max_steps: -1`, so `TrainingArguments` does not replace the epoch schedule with
 a fixed step limit. New NEU-ESC revision presets use a separate protocol with
-`max_length: 2024` and `max_steps: 2200`; they are not the historical NEU r=32
+`max_length: 2024` and `max_steps: 2800`; they are not the historical NEU r=32
 paper configuration.
 
 Run a reported configuration with:
@@ -151,7 +151,7 @@ python scripts/train.py \
   --config configs/additional/uit_vsfc_mask_alpha_ce_all_label_tokens_r8_len1024.yaml
 ```
 
-Equivalent presets exist for `neu_esc` (length 2024, 2200 steps) and `victsd`
+Equivalent presets exist for `neu_esc` (length 2024, 2800 steps) and `victsd`
 (length 1024, 3 epochs), together with masked focal without alpha and ViCTSD base
 CE. See [`configs/additional`](configs/additional) and the
 [revision notebook guide](notebooks/revisions/README.md).

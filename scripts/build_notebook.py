@@ -73,7 +73,7 @@ retain weight 1; completion masking excludes prompt loss.
 | Full pipeline | true | true | true |
 
 The configurations below are additional runs, outside the historical paper matrix.
-Recent NEU runs use r=8, length=2024 and max_steps=2200; UIT-VSFC and ViCTSD
+Recent NEU runs use r=8, length=2024 and max_steps=2800; UIT-VSFC and ViCTSD
 use r=8, length=1024 and three epochs. All use seed 42. The two-step override
 checks execution only and cannot supply research results."""),
             cell("code", """MAX_LENGTH = 2024 if DATASET == "neu_esc" else 1024

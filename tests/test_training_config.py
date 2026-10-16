@@ -40,9 +40,9 @@ def test_revision_output_names_identify_scope_seed_and_alpha():
 
 def test_revision_schedule_does_not_relax_paper_policy():
     validate = cli_module().validate_config
-    validate(ExperimentConfig(protocol="revision", dataset="neu_esc", lora_rank=8, max_length=2024, max_steps=2200))
+    validate(ExperimentConfig(protocol="revision", dataset="neu_esc", lora_rank=8, max_length=2024, max_steps=2800))
     with pytest.raises(ValueError, match="3 complete epochs"):
-        validate(ExperimentConfig(max_steps=2200))
+        validate(ExperimentConfig(max_steps=2800))
     with pytest.raises(ValueError, match="exactly 3"):
         validate(ExperimentConfig(epochs=4))
     with pytest.raises(ValueError, match="use_class_alpha"):

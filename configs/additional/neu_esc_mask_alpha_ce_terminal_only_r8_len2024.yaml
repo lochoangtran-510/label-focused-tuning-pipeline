@@ -5,7 +5,7 @@ experiment:
   lora_dropout: 0.05
   learning_rate: 0.0001
   epochs: 3
-  max_steps: 2200
+  max_steps: 2800
   batch_size: 6
   gradient_accumulation: 4
   max_length: 2024

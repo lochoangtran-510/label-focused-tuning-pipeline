@@ -65,7 +65,7 @@ scores are included in this source update.
 | Dataset | Rank | Maximum length | Schedule | Added controls |
 |---|---:|---:|---|---|
 | UIT-VSFC | 8 | 1024 | 3 epochs | Masked CE + alpha (terminal/all); masked focal without alpha |
-| NEU-ESC | 8 | 2024 | 2200 steps | Masked CE + alpha (terminal/all); masked focal without alpha |
+| NEU-ESC | 8 | 2024 | 2800 steps | Masked CE + alpha (terminal/all); masked focal without alpha |
 | ViCTSD | 8 | 1024 | 3 epochs | Base CE; masked CE + alpha (terminal/all); masked focal without alpha |
 
 Run presets from `configs/additional/`. Standalone Colab notebooks and their

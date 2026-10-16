@@ -20,7 +20,7 @@ repository update.
 
 All seven use LoRA rank 8, LoRA alpha 16, dropout 0.05, learning rate 1e-4,
 batch size 6, accumulation 4, and seed 42. UIT-VSFC and ViCTSD use maximum length
-1024 and a 3-epoch schedule. NEU-ESC uses maximum length 2024 and a 2200-step
+1024 and a 3-epoch schedule. NEU-ESC uses maximum length 2024 and a 2800-step
 schedule. Early stopping and best-checkpoint selection use validation loss.
 The new NEU schedule is distinct from the historical paper's r=32 ablation.
 

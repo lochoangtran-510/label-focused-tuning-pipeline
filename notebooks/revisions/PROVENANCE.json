@@ -22,16 +22,18 @@
       "path": "notebooks/revisions/neu_esc/neu_mask_alpha_ce_all_label_tokens_r8_len2024.ipynb",
       "alpha_scope": "all_label_tokens",
       "source": "neu_mask_alpha_ce_all_label_tokens_r8_len2024.ipynb",
-      "source_sha256": "b8e2105e4b8442479bfe8b593f9cf6a790a5ad760289d0be8c2e14b4291a0cda",
-      "published_sha256": "21b7a568d74b0e1ea3871f44f4d2af9b0689597dc7b5824b8636cdc6a14d389f"
+      "source_sha256": "2f2e2c7e9603764c9bca78269a906907ac827d1a1b5d2c787ff65c6b160da07e",
+      "published_sha256": "4deac71744ced484beb50185c656052303efbbbb70b5ad505829e9b8fc9cfe67",
+      "max_steps": 2800
     },
     {
       "dataset": "neu_esc",
       "path": "notebooks/revisions/neu_esc/neu_mask_alpha_ce_terminal_only_r8_len2024.ipynb",
       "alpha_scope": "terminal_only",
       "source": "neu_mask_alpha_ce_all_label_tokens_r8_len2024.ipynb",
-      "source_sha256": "b8e2105e4b8442479bfe8b593f9cf6a790a5ad760289d0be8c2e14b4291a0cda",
-      "published_sha256": "e7315b0738da6c5005996b417add7fb9977f0870e10b4b950f000587e57fea5b"
+      "source_sha256": "2f2e2c7e9603764c9bca78269a906907ac827d1a1b5d2c787ff65c6b160da07e",
+      "published_sha256": "ffc1badbe2656e41316c653065d6cc92437dea6f2088e7bd90deb815b5f1da69",
+      "max_steps": 2800
     },
     {
       "dataset": "victsd",
