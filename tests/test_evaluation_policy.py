@@ -91,23 +91,29 @@ def test_invalid_result_cannot_get_credit_from_a_matching_majority_class(dataset
 
 
 @pytest.mark.parametrize("dataset", ["neu_esc", "uit_vsfc", "victsd"])
-def test_all_valid_metrics_are_unchanged(dataset):
+@pytest.mark.parametrize("make_errors", [False, True])
+def test_all_valid_metrics_are_unchanged(dataset, make_errors):
     spec = DATASET_REGISTRY[dataset]
     n = max(len(spec.sentiment_labels), len(spec.topic_labels))
     sentiments = [spec.sentiment_labels[index % len(spec.sentiment_labels)] for index in range(n)]
     topics = [spec.topic_labels[index % len(spec.topic_labels)] for index in range(n)]
+    pred_sentiments, pred_topics = sentiments.copy(), topics.copy()
+    if make_errors:
+        pred_sentiments[0] = spec.sentiment_labels[1]
+        pred_topics[0] = spec.topic_labels[1]
     frame = pd.DataFrame({
         "true_sentiment": sentiments, "true_topic": topics,
-        "pred_sentiment": sentiments, "pred_topic": topics,
+        "pred_sentiment": pred_sentiments, "pred_topic": pred_topics,
     })
     metrics = evaluate_full_test_predictions(frame, spec)
     assert metrics["invalid_counts"] == {"sentiment": 0, "topic": 0, "rows_with_any_invalid": 0}
-    for task, labels, values in [
-        ("sentiment", spec.sentiment_labels, sentiments), ("topic", spec.topic_labels, topics)
+    for task, labels, values, predictions in [
+        ("sentiment", spec.sentiment_labels, sentiments, pred_sentiments),
+        ("topic", spec.topic_labels, topics, pred_topics),
     ]:
-        assert metrics[task]["accuracy"] == accuracy_score(values, values)
-        assert metrics[task]["macro_f1"] == f1_score(values, values, labels=labels, average="macro")
-        assert metrics[task]["weighted_f1"] == 1
+        assert metrics[task]["accuracy"] == accuracy_score(values, predictions)
+        assert metrics[task]["macro_f1"] == f1_score(values, predictions, labels=labels, average="macro")
+        assert metrics[task]["weighted_f1"] == f1_score(values, predictions, labels=labels, average="weighted")
 
 
 def test_re_evaluation_uses_original_outputs_instead_of_old_imputed_labels():

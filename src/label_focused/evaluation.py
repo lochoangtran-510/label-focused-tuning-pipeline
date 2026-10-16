@@ -24,10 +24,11 @@ def _metric_inputs(truth, predictions, labels):
     ):
         raise ValueError("Business labels must be unique non-empty strings, excluding PARSE_ERROR")
     allowed = set(labels)
+    allowed_predictions = allowed | {INVALID_LABEL}
     if any(not isinstance(value, str) or value not in allowed for value in truth):
         raise ValueError("Ground-truth labels must belong to the business label set")
     if any(
-        not isinstance(value, str) or value not in allowed | {INVALID_LABEL}
+        not isinstance(value, str) or value not in allowed_predictions
         for value in predictions
     ):
         raise ValueError("Predictions must be business labels or PARSE_ERROR")
